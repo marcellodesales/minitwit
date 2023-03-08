@@ -12,6 +12,7 @@
 from collections import namedtuple
 import time
 import json
+import os
 
 from hashlib import md5
 from datetime import datetime
@@ -21,6 +22,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlalchemy as db
 from sqlalchemy.sql import text
 import requests
+from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
 import boto3
 import botocore
 
@@ -249,6 +252,48 @@ def before_request():
         g.user = query_db('select * from user where user_id = :userid', #pylint: disable=assigning-non-slot
                           {'userid': session['user_id']}, one=True)
 
+def is_running_on_ec2():
+    """
+    :return: Whether we are running in EC2 by checking if there's connectivity to the IP address
+    """
+    try:
+        # We create a requests.Session() object and mount an HTTPAdapter() object with a max_retries value of 0.
+        # This ensures that the requests.get() function will not retry in case of a connection error or a timeout.
+        session = requests.Session()
+        # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request/15431343#15431343
+        retries = HTTPAdapter(max_retries=1)
+        session.mount('http://', retries)
+
+        # Making sure we timeout very quickly for the single request
+        # https://requests.readthedocs.io/en/stable/user/advanced/#timeouts
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
+        response = session.get('http://169.254.169.254/latest/meta-data/', timeout=1)
+        return response.status_code == 200
+
+    except (RequestException, TimeoutError, ConnectionError):
+        return False
+
+def get_hostname():
+    """
+    :return: the hostname where the app is running: from EC2 is the public host or os hostname otherwise
+    """
+    # just make sure we have if we are on EC2 to show the public host for completeness
+    if is_running_on_ec2():
+        # Just get the public hostname from the metadata
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
+        return requests.get('http://169.254.169.254/latest/meta-data/public-hostname').text
+
+    # By default, just return the nodename
+    return os.uname().nodename
+
+# singleton instance loaded when the server is bootstrapped, executed only once
+HOSTNAME = get_hostname()
+
+# https://stackoverflow.com/questions/25860304/how-do-i-set-response-headers-in-flask/59676071#59676071
+@app.after_request
+def add_header(response):
+    response.headers['X-Resolved-By'] = HOSTNAME
+    return response
 
 @app.route('/')
 def timeline():
