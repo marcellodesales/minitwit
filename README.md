@@ -263,3 +263,228 @@ test_minitwit.py::test_register
 602f533b1fa6:/Users/mdesales/dev/github.com/marcellodesales/minitwit# exit
 exit
 ```
+
+# Capabilities
+
+* Show bootstrap details for debugging
+
+## Bootstrap config in Non-Cloud
+
+* It does log `Not running in the Cloud...`
+
+```python
+minitwit-minitwit-runtime-1  | [2023-03-09 00:57:49,142] INFO in minitwit: Using local db sqlite:////var/minitwit/minitwit.db
+minitwit-minitwit-runtime-1  | [2023-03-09 00:57:49,331] INFO in minitwit: Bootstrapping app server...
+minitwit-minitwit-runtime-1  | [2023-03-09 00:57:51,485] INFO in minitwit: Not running in the Cloud...
+minitwit-minitwit-runtime-1  | [2023-03-09 00:57:51,489] WARNING in minitwit: Can't fetch the cloud metadata because this instance is not in the cloud!
+minitwit-minitwit-runtime-1  | [2023-03-09 00:57:51,500] INFO in minitwit: Loaded with the following config: {
+minitwit-minitwit-runtime-1  |     "APPLICATION_ROOT": "/",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_ENDPOINT": "DB_ENDPOINT",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_NAME": "DB_NAME",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_PASSWORD": "DB_PASSWORD",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_SECRET_ARN": "DB_SECRET_ARN",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_SECRET_KEY_PASSWORD": "DB_SECRET_KEY_PASSWORD",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_SECRET_KEY_USERNAME": "DB_SECRET_KEY_USERNAME",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_TYPE": "DB_TYPE",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_USER": "DB_USER",
+minitwit-minitwit-runtime-1  |     "DB_STASH": "db",
+minitwit-minitwit-runtime-1  |     "DB_TYPE_MYSQL": "mysql",
+minitwit-minitwit-runtime-1  |     "DB_TYPE_SQLITE": "sqlite",
+minitwit-minitwit-runtime-1  |     "DEBUG": true,
+minitwit-minitwit-runtime-1  |     "ENV": "production",
+minitwit-minitwit-runtime-1  |     "EXPLAIN_TEMPLATE_LOADING": false,
+minitwit-minitwit-runtime-1  |     "HOSTNAME": "ebbf7e5d00be",
+minitwit-minitwit-runtime-1  |     "IN_CLOUD": {
+minitwit-minitwit-runtime-1  |         "metadata": {},
+minitwit-minitwit-runtime-1  |         "status": false,
+minitwit-minitwit-runtime-1  |         "type": "local"
+minitwit-minitwit-runtime-1  |     },
+minitwit-minitwit-runtime-1  |     "JSONIFY_MIMETYPE": null,
+minitwit-minitwit-runtime-1  |     "JSONIFY_PRETTYPRINT_REGULAR": null,
+minitwit-minitwit-runtime-1  |     "JSON_AS_ASCII": null,
+minitwit-minitwit-runtime-1  |     "JSON_SORT_KEYS": null,
+minitwit-minitwit-runtime-1  |     "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db",
+minitwit-minitwit-runtime-1  |     "LOCAL_DB_TYPE": "sqlite",
+minitwit-minitwit-runtime-1  |     "MAX_CONTENT_LENGTH": null,
+minitwit-minitwit-runtime-1  |     "MAX_COOKIE_SIZE": 4093,
+minitwit-minitwit-runtime-1  |     "PERMANENT_SESSION_LIFETIME": "31 days, 0:00:00",
+minitwit-minitwit-runtime-1  |     "PER_PAGE": 30,
+minitwit-minitwit-runtime-1  |     "PREFERRED_URL_SCHEME": "http",
+minitwit-minitwit-runtime-1  |     "PROPAGATE_EXCEPTIONS": null,
+minitwit-minitwit-runtime-1  |     "SCHEMAS": {
+minitwit-minitwit-runtime-1  |         "mysql": "db_mysql.sql",
+minitwit-minitwit-runtime-1  |         "sqlite": "db_sqlite.sql"
+minitwit-minitwit-runtime-1  |     },
+minitwit-minitwit-runtime-1  |     "SECRET_FRIENDLY_NAME": "mtdb-credentials",
+minitwit-minitwit-runtime-1  |     "SECRET_KEY": "development key",
+minitwit-minitwit-runtime-1  |     "SECRET_PASSWORD": "password",
+minitwit-minitwit-runtime-1  |     "SECRET_USERNAME": "username",
+minitwit-minitwit-runtime-1  |     "SEND_FILE_MAX_AGE_DEFAULT": null,
+minitwit-minitwit-runtime-1  |     "SERVER_NAME": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_DOMAIN": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_HTTPONLY": true,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_NAME": "session",
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_PATH": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_SAMESITE": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_SECURE": false,
+minitwit-minitwit-runtime-1  |     "SESSION_REFRESH_EACH_REQUEST": true,
+minitwit-minitwit-runtime-1  |     "TEMPLATES_AUTO_RELOAD": null,
+minitwit-minitwit-runtime-1  |     "TESTING": false,
+minitwit-minitwit-runtime-1  |     "TRAP_BAD_REQUEST_ERRORS": null,
+minitwit-minitwit-runtime-1  |     "TRAP_HTTP_EXCEPTIONS": false,
+minitwit-minitwit-runtime-1  |     "USE_X_SENDFILE": false
+minitwit-minitwit-runtime-1  | }
+minitwit-minitwit-runtime-1  |  * Serving Flask app 'minitwit.py'
+minitwit-minitwit-runtime-1  |  * Debug mode: off
+minitwit-minitwit-runtime-1  | WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+minitwit-minitwit-runtime-1  |  * Running on all addresses (0.0.0.0)
+minitwit-minitwit-runtime-1  |  * Running on http://127.0.0.1:5000
+minitwit-minitwit-runtime-1  |  * Running on http://192.168.208.2:5000
+minitwit-minitwit-runtime-1  | Press CTRL+C to quit
+```
+
+## Bootstrap config in Cloud
+
+```python
+Mar 09 01:16:25 ip-10-105-238-6 systemd[1]: Started Minitwit server II.
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: [2023-03-09 01:16:26,164] INFO in minitwit: Bootstrapping app server...
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: [2023-03-09 01:16:26,169] INFO in minitwit: Running in the Cloud...
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: [2023-03-09 01:16:26,174] INFO in minitwit: Loaded with the following config: {
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "APPLICATION_ROOT": "/",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_ENDPOINT": "DB_ENDPOINT",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_NAME": "DB_NAME",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_PASSWORD": "DB_PASSWORD",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_SECRET_ARN": "DB_SECRET_ARN",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_SECRET_KEY_PASSWORD": "DB_SECRET_KEY_PASSWORD",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_SECRET_KEY_USERNAME": "DB_SECRET_KEY_USERNAME",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_TYPE": "DB_TYPE",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "CONFIG_DB_USER": "DB_USER",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_ENDPOINT": "mtdb.cwxg4mojlhdg.us-east-1.rds.amazonaws.com",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_NAME": "mtdb",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_PASSWORD": "mt*****d",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_STASH": "db",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_TYPE": "mysql",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_TYPE_MYSQL": "mysql",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_TYPE_SQLITE": "sqlite",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DB_USER": "mtdbuser",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "DEBUG": true,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "ENV": "production",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "EXPLAIN_TEMPLATE_LOADING": false,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "HOSTNAME": "ec2-44-214-35-206.compute-1.amazonaws.com",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "IN_CLOUD": {
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:         "metadata": {
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "accountId": "178468422646",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "architecture": "x86_64",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "availabilityZone": "us-east-1a",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "billingProducts": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "devpayProductCodes": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "imageId": "ami-09cd747c78a9add63",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "instanceId": "i-0412331f71f1cd3c8",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "instanceType": "t3.medium",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "kernelId": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "marketplaceProductCodes": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "pendingTime": "2023-03-06T18:09:23Z",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "privateIp": "10.105.238.6",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "ramdiskId": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "region": "us-east-1",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:             "version": "2017-09-30"
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:         },
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:         "status": true,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:         "type": "ec2"
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     },
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "JSONIFY_MIMETYPE": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "JSONIFY_PRETTYPRINT_REGULAR": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "JSON_AS_ASCII": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "JSON_SORT_KEYS": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "LOCAL_DB_TYPE": "sqlite",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "MAX_CONTENT_LENGTH": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "MAX_COOKIE_SIZE": 4093,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "PERMANENT_SESSION_LIFETIME": "31 days, 0:00:00",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "PER_PAGE": 30,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "PREFERRED_URL_SCHEME": "http",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "PROPAGATE_EXCEPTIONS": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SCHEMAS": {
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:         "mysql": "db_mysql.sql",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:         "sqlite": "db_sqlite.sql"
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     },
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SECRET_FRIENDLY_NAME": "mtdb-credentials",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SECRET_KEY": "development key",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SECRET_PASSWORD": "password",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SECRET_USERNAME": "username",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SEND_FILE_MAX_AGE_DEFAULT": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SERVER_NAME": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SESSION_COOKIE_DOMAIN": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SESSION_COOKIE_HTTPONLY": true,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SESSION_COOKIE_NAME": "session",
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SESSION_COOKIE_PATH": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SESSION_COOKIE_SAMESITE": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SESSION_COOKIE_SECURE": false,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "SESSION_REFRESH_EACH_REQUEST": true,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "TEMPLATES_AUTO_RELOAD": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "TESTING": false,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "TRAP_BAD_REQUEST_ERRORS": null,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "TRAP_HTTP_EXCEPTIONS": false,
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:     "USE_X_SENDFILE": false
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: }
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: [2023-03-09 01:16:26,174] INFO in minitwit: DB_SECRET_ARN=None
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: [2023-03-09 01:16:26,224] INFO in minitwit: Unable to get credentials from secrets manager. Using stored credentials: Unable to locate credentials
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: [2023-03-09 01:16:26,224] INFO in minitwit: db_type=mysql endpoint=mtdb.cwxg4mojlhdg.us-east-1.rds.amazonaws.com db=mtdb username=mtdbuser using_secret=False
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:  * Serving Flask app 'minitwit.py'
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:  * Debug mode: off
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:  * Running on all addresses (0.0.0.0)
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:  * Running on http://127.0.0.1:5000
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:  * Running on http://10.105.238.6:5000
+Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: Press CTRL+C to quit
+Mar 09 01:16:27 ip-10-105-238-6 flask[66728]: 10.105.238.68 - - [09/Mar/2023 01:16:27] "GET /public HTTP/1.1" 200 -
+Mar 09 01:16:29 ip-10-105-238-6 flask[66728]: 10.105.238.5 - - [09/Mar/2023 01:16:29] "GET /public HTTP/1.1" 200 -
+```
+
+## HTTP Response Headers for Debugging
+
+* That way you can make sure which server is responding
+
+| HTTP Request | Description                                                                   | Always returned | 
+|--------------|-------------------------------------------------------------------------------|-----------------|
+| Host         | Shows either the public hostname when in the cloud or the host's defined name | Yes             |
+| X-Host-AZ    | Which region served the request, only returned when the app is in the cloud   | No              |
+
+* Here's an example of the sequence of calls being load-balanced by the Load Balancer.
+
+```console
+☁️  aws-cli@2.9.15   
+☸️  kubectl@1.24.3 📛 kustomize@1.24.3 🎡 helm@3.10.2    🐳 docker@20.10.21-rd 🐙 docker-compose@v2.14.0
+👮 marcellodesales  
+🏗  1.24.3+k3s1 🔐 rancher-desktop 🍱 default 
+~/dev/git.viasat.com/mdesales/minitwit on  feature/show-hostname-response-header-load-balancer-debug 📅 03-08-2023 ⌚17:17:00
+$ curl -I http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/public
+HTTP/1.1 200 OK
+Date: Thu, 09 Mar 2023 01:17:04 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 771
+Connection: keep-alive
+Set-Cookie: AWSALB=Prqz8GZedSFTOFeVRsOsapmAFo/93Bh9dcwhinqaHerEpwnCSpVwhAF6GfdT+uUmYJGYaUL42k7wqFNUOxoER3siaiJxmU7s3BgAu9YYMqqN+Gs2lqS55tWrx6Dl; Expires=Thu, 16 Mar 2023 01:17:04 GMT; Path=/
+Set-Cookie: AWSALBCORS=Prqz8GZedSFTOFeVRsOsapmAFo/93Bh9dcwhinqaHerEpwnCSpVwhAF6GfdT+uUmYJGYaUL42k7wqFNUOxoER3siaiJxmU7s3BgAu9YYMqqN+Gs2lqS55tWrx6Dl; Expires=Thu, 16 Mar 2023 01:17:04 GMT; Path=/; SameSite=None
+Server: Werkzeug/2.2.3 Python/3.8.10
+Host: ec2-52-21-148-181.compute-1.amazonaws.com
+X-Host-AZ: us-east-1b
+
+
+☁️  aws-cli@2.9.15   
+☸️  kubectl@1.24.3 📛 kustomize@1.24.3 🎡 helm@3.10.2    🐳 docker@20.10.21-rd 🐙 docker-compose@v2.14.0
+👮 marcellodesales  
+🏗  1.24.3+k3s1 🔐 rancher-desktop 🍱 default 
+~/dev/git.viasat.com/mdesales/minitwit on  feature/show-hostname-response-header-load-balancer-debug 📅 03-08-2023 ⌚17:17:05
+$ curl -I http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/public
+HTTP/1.1 200 OK
+Date: Thu, 09 Mar 2023 01:17:07 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 771
+Connection: keep-alive
+Set-Cookie: AWSALB=YennYV5Lrx+7NUfbnPK7JfhymyrCW4hA/MrXdTgVNbztTtsfIiI5SCAiXDot8uk38Ir7umpkpL5yrEA8FunZGD/IiZ/RzT191y03pYt1jyqfywN0UeYIkKLi9LAw; Expires=Thu, 16 Mar 2023 01:17:07 GMT; Path=/
+Set-Cookie: AWSALBCORS=YennYV5Lrx+7NUfbnPK7JfhymyrCW4hA/MrXdTgVNbztTtsfIiI5SCAiXDot8uk38Ir7umpkpL5yrEA8FunZGD/IiZ/RzT191y03pYt1jyqfywN0UeYIkKLi9LAw; Expires=Thu, 16 Mar 2023 01:17:07 GMT; Path=/; SameSite=None
+Server: Werkzeug/2.2.3 Python/3.8.10
+Host: ec2-44-214-35-206.compute-1.amazonaws.com
+X-Host-AZ: us-east-1a
+```
