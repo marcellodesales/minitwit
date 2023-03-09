@@ -5,8 +5,10 @@ import json
 
 admin_api = Blueprint('admin_api', __name__, url_prefix='/admin')
 
+from viasat.platform.core.http_auth_basic import auth
 
 @admin_api.route('/env')
+@auth.login_required
 def admin_env():
     """
     :return: Show-casing plain text HTTP response for single liveliness, or liveness, health check
@@ -22,6 +24,7 @@ def admin_env():
 
 
 @admin_api.route('/config')
+@auth.login_required
 def admin_config():
     """
     :return: Show the current configuration resolved by the app

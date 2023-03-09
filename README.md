@@ -470,9 +470,17 @@ Mar 09 01:16:29 ip-10-105-238-6 flask[66728]: 10.105.238.5 - - [09/Mar/2023 01:1
 
 * Just show the settings of the server
 * It's important to show how the app is configured
+* Protected with Basic auth
+
+> **NOTE**: Credentials: `viasat:camper` 
 
 ```console
-$ curl -i localhost:4000/admin/env
+$ echo -n "viasat:camper" | base64 
+dmlhc2F0OmNhbXBlcg==
+```
+
+```console
+$ curl -i -H "Authorization: Basic dmlhc2F0OmNhbXBlcg==" http://localhost:4000/admin/env
 HTTP/1.1 200 OK
 Server: Werkzeug/2.2.3 Python/3.8.16
 Date: Thu, 09 Mar 2023 04:47:00 GMT
@@ -510,7 +518,7 @@ Connection: close
 > **NOTE**: In production-grade services, this endpoint usually obfuscates secret values
 
 ```console
-$ curl -i localhost:4000/admin/config
+$ curl -i -H "Authorization: Basic dmlhc2F0OmNhbXBlcg==" http://localhost:4000/admin/config
 HTTP/1.1 200 OK
 Server: Werkzeug/2.2.3 Python/3.8.16
 Date: Thu, 09 Mar 2023 05:55:13 GMT
@@ -832,3 +840,61 @@ Mar 09 10:56:12 ip-10-105-238-77 flask[45627]: 10.105.238.68 - - [09/Mar/2023 10
 Mar 09 10:56:14 ip-10-105-238-77 flask[45627]: [2023-03-09 10:56:14,562] INFO in healthcheck_routes: App successfully listening on port
 Mar 09 10:56:14 ip-10-105-238-77 flask[45627]: 10.105.238.5 - - [09/Mar/2023 10:56:14] "GET /healthcheck/liveness HTTP/1.1" 200 
 ```
+
+## Securing Admin APIs
+
+* Since they are used by Dashboards, they need to have a separate authentication method
+  * We are going to use basic auth
+
+> **NOTE**: All Admin endpoints are now secured by basic auth for demo purposes
+
+```console
+$ curl -I http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/admin/config
+HTTP/1.1 401 UNAUTHORIZED
+Date: Thu, 09 Mar 2023 12:25:17 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 19
+Connection: keep-alive
+Set-Cookie: AWSALB=ZUbJSWsUq4PnmlaGA0Z7G+SK/UobQMBY4GQz8Uwd6dDbvvr4BNBXSlIiGJZaXz5UzA5jN7SNrSstHH485ONsYNtXx1pXSmFbzOFp3G6os6FXTggBS/dzY79SPYHG; Expires=Thu, 16 Mar 2023 12:25:17 GMT; Path=/
+Set-Cookie: AWSALBCORS=ZUbJSWsUq4PnmlaGA0Z7G+SK/UobQMBY4GQz8Uwd6dDbvvr4BNBXSlIiGJZaXz5UzA5jN7SNrSstHH485ONsYNtXx1pXSmFbzOFp3G6os6FXTggBS/dzY79SPYHG; Expires=Thu, 16 Mar 2023 12:25:17 GMT; Path=/; SameSite=None
+Server: Werkzeug/2.2.3 Python/3.8.10
+WWW-Authenticate: Basic realm="Authentication Required"
+Host: ec2-52-21-148-181.compute-1.amazonaws.com
+X-Host-AZ: us-east-1b
+X-App-Version: 908b2ca
+
+Unauthorized Access%
+```
+
+The server will report that
+
+```console
+Mar 09 12:27:24 ip-10-105-238-6 flask[98744]: 10.105.238.5 - - [09/Mar/2023 12:27:24] "GET /admin/config HTTP/1.1" 401 -
+```
+
+* The only way now is to provide the header `Authorization` using its basic form.
+  * https://en.wikipedia.org/wiki/Basic_access_authentication
+
+```console
+$ echo -n "viasat:camper" | base64
+dmlhc2F0OmNhbXBlcg==
+```
+
+* Now, prepare a new authentication...
+
+```console
+$ curl -I -H "Authorization: Basic dmlhc2F0OmNhbXBlcg==" http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/admin/config
+HTTP/1.1 200 OK
+Date: Thu, 09 Mar 2023 12:26:25 GMT
+Content-Type: application/json
+Content-Length: 2399
+Connection: keep-alive
+Set-Cookie: AWSALB=FPv2Ml8aDpumOg+Pe3TlnXbS9DOt8REHiBDX5l0o3PdKCtZQ+51ypjRiT0d47bAzapgoLUCEHAxmWM3KG28d+s4cENONgrOILodZTSeFM5yzPUU0EPd8cjjkMoM5; Expires=Thu, 16 Mar 2023 12:26:25 GMT; Path=/
+Set-Cookie: AWSALBCORS=FPv2Ml8aDpumOg+Pe3TlnXbS9DOt8REHiBDX5l0o3PdKCtZQ+51ypjRiT0d47bAzapgoLUCEHAxmWM3KG28d+s4cENONgrOILodZTSeFM5yzPUU0EPd8cjjkMoM5; Expires=Thu, 16 Mar 2023 12:26:25 GMT; Path=/; SameSite=None
+Server: Werkzeug/2.2.3 Python/3.8.10
+Host: ec2-52-21-148-181.compute-1.amazonaws.com
+X-Host-AZ: us-east-1b
+X-App-Version: 908b2ca
+```
+
+* Now the server shows ok!

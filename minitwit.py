@@ -27,7 +27,7 @@ import botocore
 
 from viasat.platform.cloud.host_service import HostService
 from viasat.platform.cloud.config_service import ConfigService
-from viasat.platform.cloud.http_response_decorator import HttpResponseDecorator
+from viasat.platform.core.http_response_decorator import HttpResponseDecorator
 
 # https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
 from viasat.platform.observability.healthcheck_routes import healthcheck_api
