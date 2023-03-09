@@ -400,34 +400,6 @@ def login():
     return render_template('login.html', error=error)
 
 
-@app.route('/admin/env')
-def admin_env():
-    """
-    :return: Show-casing plain text HTTP response for single liveliness, or liveness, health check
-    """
-    # Get the env vars as dict
-    env_key_values = dict(os.environ)
-
-    # Convert the dictionary to a JSON string
-    env_json = json.dumps(env_key_values)
-    app.logger.info("Current envs %s", env_json)
-
-    return env_json, 200, {'content-type':'application/json'}
-
-
-@app.route('/admin/config')
-def admin_config():
-    """
-    :return: Show the current configuration resolved by the app
-    """
-
-    # Convert the dictionary to a JSON string, using the default str serializer
-    config_json = json.dumps(app.config, default=str)
-    app.logger.info("Current config=%s", config_json)
-
-    return config_json, 200, {'content-type':'application/json'}
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """Registers the user."""
