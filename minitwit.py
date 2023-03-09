@@ -119,7 +119,7 @@ def get_db_credentials():
     app.logger.info('%s=%s', CONFIG_DB_SECRET_ARN, secret_arn) #pylint: disable=no-member
 
     # just making sure it's in AWS
-    region = "" if not HostService.is_running_in_the_cloud(app) else app.config['IN_CLOUD']["metadata"]["region"]
+    region = "" if not HostService.is_running_in_the_cloud(app) else app.config["IN_CLOUD"]["metadata"]["region"]
 
     try:
         client = boto3.client(
