@@ -264,9 +264,10 @@ test_minitwit.py::test_register
 exit
 ```
 
-# Capabilities
+# Observability Capabilities
 
 * Show bootstrap details for debugging
+* Admin Env endpoint
 
 ## Bootstrap config in Non-Cloud
 
@@ -439,6 +440,43 @@ Mar 09 01:16:26 ip-10-105-238-6 flask[66728]:  * Running on http://10.105.238.6:
 Mar 09 01:16:26 ip-10-105-238-6 flask[66728]: Press CTRL+C to quit
 Mar 09 01:16:27 ip-10-105-238-6 flask[66728]: 10.105.238.68 - - [09/Mar/2023 01:16:27] "GET /public HTTP/1.1" 200 -
 Mar 09 01:16:29 ip-10-105-238-6 flask[66728]: 10.105.238.5 - - [09/Mar/2023 01:16:29] "GET /public HTTP/1.1" 200 -
+```
+
+## Admin Env endpoint
+
+* Just show the settings of the server
+* It's important to show how the app is configured
+
+```console
+$ curl -i localhost:4000/admin/env
+HTTP/1.1 200 OK
+Server: Werkzeug/2.2.3 Python/3.8.16
+Date: Thu, 09 Mar 2023 04:47:00 GMT
+content-type: application/json
+Content-Length: 700
+Host: 5901c5e41daa
+Connection: close
+
+```
+```json
+{
+  "_": "/usr/local/bin/python",
+  "PATH": "/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  "PYTHON_GET_PIP_URL": "https://github.com/pypa/get-pip/raw/d5cb0afaf23b8520f1bbcfed521017b4a95f5c01/public/get-pip.py",
+  "LC_ALL": "en_US.utf-8",
+  "PYTHON_GET_PIP_SHA256": "394be00f13fa1b9aaa47e911bdb59a09c3b2986472130f30aa0bfaf7f3980637",
+  "PYTHON_PIP_VERSION": "22.0.4",
+  "SHLVL": "1",
+  "FLASK_APP": "minitwit.py",
+  "LANG": "en_US.utf-8",
+  "HOME": "/root",
+  "PYTHON_SETUPTOOLS_VERSION": "57.5.0",
+  "PWD": "/viasat/minitwit",
+  "DB_DIR": "/var/minitwit",
+  "PYTHON_VERSION": "3.8.16",
+  "HOSTNAME": "879f79dddede",
+  "WERKZEUG_SERVER_FD": "3"
+}
 ```
 
 ## HTTP Response Headers for Debugging

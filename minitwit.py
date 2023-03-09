@@ -152,6 +152,7 @@ def get_hostname():
         return requests.get('http://169.254.169.254/latest/meta-data/public-hostname').text
 
     # By default, just return the nodename
+    # https://stackoverflow.com/questions/4271740/how-can-i-use-python-to-get-the-system-hostname/49610911#49610911
     return os.uname().nodename
 
 
@@ -172,10 +173,11 @@ def fetch_app_metadata_details():
     app.config['HOSTNAME'] = get_hostname()
 
     if not is_running_in_the_cloud():
-        app.logger.warn("Can't fetch the cloud metadata because this instance is not in the cloud!")
+        app.logger.warning("Can't fetch the cloud metadata because this instance is not in the cloud!")
         log_current_config()
         return
 
+    # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
     cloud_metadata = requests.get('http://169.254.169.254/latest/dynamic/instance-identity/document').text
     app.config['IN_CLOUD']["metadata"] = json.loads(cloud_metadata)
 
@@ -345,6 +347,7 @@ def add_header(response):
         response.headers['X-Host-AZ'] = app.config['IN_CLOUD']["metadata"]["availabilityZone"]
     return response
 
+
 @app.route('/')
 def timeline():
     """Shows a users timeline or if no user is logged in it will
@@ -473,6 +476,20 @@ def login():
             return redirect(url_for('timeline'))
     return render_template('login.html', error=error)
 
+
+@app.route('/admin/env')
+def admin_env():
+    """
+    :return: Show-casing plain text HTTP response for single liveliness, or liveness, health check
+    """
+    # Get the env vars as dict
+    env_key_values = dict(os.environ)
+
+    # Convert the dictionary to a JSON string
+    env_json = json.dumps(env_key_values)
+    app.logger.info("Current envs %s", env_json)
+
+    return env_json, 200, {'content-type':'application/json'}
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
