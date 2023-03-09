@@ -50,7 +50,7 @@ class ConfigService:
 
 
     @staticmethod
-    def __get_current_endpoints(app):
+    def get_current_endpoints(app):
         # https://stackoverflow.com/questions/30081802/flask-blueprints-list-routes/52065090#52065090
         registered_endpoints = [str(p) for p in app.url_map.iter_rules()]
         return registered_endpoints
@@ -59,5 +59,5 @@ class ConfigService:
     @staticmethod
     def log_available_endpoints(app):
         # https://stackoverflow.com/questions/30081802/flask-blueprints-list-routes/52065090#52065090
-        registered_endpoints = ConfigService.__get_current_endpoints(app)
+        registered_endpoints = ConfigService.get_current_endpoints(app)
         app.logger.info("Endpoints: %s", str(registered_endpoints))
