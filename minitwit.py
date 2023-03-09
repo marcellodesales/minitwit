@@ -100,6 +100,85 @@ app.config.from_object(__name__)
 #Read config settings from the file specified by this env var, if it is defined.
 app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
+# Just add an extra config to see if it's in the cloud
+app.config['IN_CLOUD'] = None
+
+def is_running_in_the_cloud():
+    """
+    :return: Whether we are running in EC2 by checking if there's connectivity to the IP address
+    """
+
+    # Just verifying if the config value has been checked before, if so just return the status
+    if not app.config['IN_CLOUD'] is None:
+        return app.config['IN_CLOUD']["status"]
+
+    # As the server is bootstrapping, then just consider it's not
+    app.config['IN_CLOUD'] = {
+        "status": False,
+        "metadata": {},
+        "type": "local"
+    }
+    try:
+        # We create a requests.Session() object and mount an HTTPAdapter() object with a max_retries value of 0.
+        # This ensures that the requests.get() function will not retry in case of a connection error or a timeout.
+        session = requests.Session()
+        # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request/15431343#15431343
+        retries = HTTPAdapter(max_retries=1)
+        session.mount('http://', retries)
+
+        # Making sure we timeout very quickly for the single request
+        # https://requests.readthedocs.io/en/stable/user/advanced/#timeouts
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
+        response = session.get('http://169.254.169.254/latest/meta-data/', timeout=1)
+        app.config['IN_CLOUD']["status"] = response.status_code == 200
+        app.config['IN_CLOUD']["type"] = "ec2" if response.status_code == 200 else "compute"
+        app.logger.info("Running on EC2...")
+
+    except (RequestException, TimeoutError, ConnectionError):
+        app.logger.info("Not running on EC2...")
+
+    # Just return the cached value
+    return app.config['IN_CLOUD']["status"]
+
+
+def get_hostname():
+    """
+    :return: the hostname where the app is running: from EC2 is the public host or os hostname otherwise
+    """
+    # just make sure we have if we are on EC2 to show the public host for completeness
+    if is_running_in_the_cloud():
+        # Just get the public hostname from the metadata
+        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
+        return requests.get('http://169.254.169.254/latest/meta-data/public-hostname').text
+
+    # By default, just return the nodename
+    return os.uname().nodename
+
+def log_current_config():
+    # Just make sure to use the string parser when dumping to string to avoid serialization issues
+    # https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable/36142844#36142844
+    app.logger.info("Loaded with the following config: %s",
+                    json.dumps(app.config, indent=4, sort_keys=True, default=str))
+
+
+def fetch_app_metadata_details():
+    """
+    Loads the metadata about the service just for information
+    """
+    app.logger.info("Bootstrapping app server...")
+
+    # Fetch the first information, which will force to check the cloud
+    app.config['HOSTNAME'] = get_hostname()
+
+    if not is_running_in_the_cloud():
+        app.logger.warn("Can't fetch the cloud metadata because this instance is not in the cloud!")
+        log_current_config()
+        return
+
+    cloud_metadata = requests.get('http://169.254.169.254/latest/dynamic/instance-identity/document').text
+    app.config['IN_CLOUD']["metadata"] = json.loads(cloud_metadata)
+
+    log_current_config()
 
 def get_db_credentials():
     ''' If we are configured to do so, retrieve the db username and password
@@ -108,9 +187,8 @@ def get_db_credentials():
     secret_arn = app.config.get(CONFIG_DB_SECRET_ARN)
     app.logger.info('%s=%s', CONFIG_DB_SECRET_ARN, secret_arn) #pylint: disable=no-member
 
-    region = json.loads(
-        requests.get(
-            'http://169.254.169.254/latest/dynamic/instance-identity/document').text)['region']
+    # just making sure it's in AWS
+    region = "" if not is_running_in_the_cloud() else app.config['IN_CLOUD']["metadata"]["region"]
 
     try:
         client = boto3.client(
@@ -252,47 +330,13 @@ def before_request():
         g.user = query_db('select * from user where user_id = :userid', #pylint: disable=assigning-non-slot
                           {'userid': session['user_id']}, one=True)
 
-def is_running_on_ec2():
-    """
-    :return: Whether we are running in EC2 by checking if there's connectivity to the IP address
-    """
-    try:
-        # We create a requests.Session() object and mount an HTTPAdapter() object with a max_retries value of 0.
-        # This ensures that the requests.get() function will not retry in case of a connection error or a timeout.
-        session = requests.Session()
-        # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request/15431343#15431343
-        retries = HTTPAdapter(max_retries=1)
-        session.mount('http://', retries)
-
-        # Making sure we timeout very quickly for the single request
-        # https://requests.readthedocs.io/en/stable/user/advanced/#timeouts
-        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-        response = session.get('http://169.254.169.254/latest/meta-data/', timeout=1)
-        return response.status_code == 200
-
-    except (RequestException, TimeoutError, ConnectionError):
-        return False
-
-def get_hostname():
-    """
-    :return: the hostname where the app is running: from EC2 is the public host or os hostname otherwise
-    """
-    # just make sure we have if we are on EC2 to show the public host for completeness
-    if is_running_on_ec2():
-        # Just get the public hostname from the metadata
-        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-        return requests.get('http://169.254.169.254/latest/meta-data/public-hostname').text
-
-    # By default, just return the nodename
-    return os.uname().nodename
-
-# singleton instance loaded when the server is bootstrapped, executed only once
-HOSTNAME = get_hostname()
 
 # https://stackoverflow.com/questions/25860304/how-do-i-set-response-headers-in-flask/59676071#59676071
 @app.after_request
 def add_header(response):
-    response.headers['X-Resolved-By'] = HOSTNAME
+    response.headers['Host'] = app.config['HOSTNAME']
+    if app.config['IN_CLOUD']["status"]:
+        response.headers['X-Host-AZ'] = app.config['IN_CLOUD']["metadata"]["availabilityZone"]
     return response
 
 @app.route('/')
@@ -463,6 +507,8 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('public_timeline'))
 
+# Bootstrap the host details
+fetch_app_metadata_details()
 
 # add some filters to jinja
 #pylint: disable=no-member
