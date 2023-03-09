@@ -22,10 +22,16 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlalchemy as db
 from sqlalchemy.sql import text
 import requests
-from requests.adapters import HTTPAdapter
-from requests.exceptions import RequestException
 import boto3
 import botocore
+
+from viasat.platform.cloud.host_service import HostService
+from viasat.platform.cloud.config_service import ConfigService
+from viasat.platform.cloud.http_response_decorator import HttpResponseDecorator
+
+# https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
+from viasat.platform.observability.healthcheck_routes import healthcheck_api
+from viasat.platform.observability.admin_routes import admin_api
 
 #======================================================================
 # Database settings
@@ -35,8 +41,6 @@ DB_TYPE_MYSQL = 'mysql'
 
 # By default, use a local sqlite db.
 LOCAL_DB_TYPE = DB_TYPE_SQLITE
-
-LOCAL_DATABASE_URL = LOCAL_DB_TYPE + ':////var/minitwit/minitwit.db'
 
 # Schema files used to initialize the database
 #
@@ -102,97 +106,10 @@ app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
 # Just add an extra config to see if it's in the cloud
 app.config['IN_CLOUD'] = None
-
-ENV_KEY_VALUES = "\n"
-for k, v in os.environ.items():
-    ENV_KEY_VALUES += f'{k}={v}' + "\n"
-app.logger.info("Current environment: %s", ENV_KEY_VALUES)
-
-
-def is_running_in_the_cloud():
-    """
-    :return: Whether we are running in EC2 by checking if there's connectivity to the IP address
-    """
-
-    # Just verifying if the config value has been checked before, if so just return the status
-    if not app.config['IN_CLOUD'] is None:
-        return app.config['IN_CLOUD']["status"]
-
-    # As the server is bootstrapping, then just consider it's not
-    app.config['IN_CLOUD'] = {
-        "status": False,
-        "metadata": {},
-        "type": "local"
-    }
-    try:
-        # We create a requests.Session() object and mount an HTTPAdapter() object with a max_retries value of 0.
-        # This ensures that the requests.get() function will not retry in case of a connection error or a timeout.
-        session = requests.Session()
-        # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request/15431343#15431343
-        retries = HTTPAdapter(max_retries=1)
-        session.mount('http://', retries)
-
-        # Making sure we timeout very quickly for the single request
-        # https://requests.readthedocs.io/en/stable/user/advanced/#timeouts
-        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-        response = session.get('http://169.254.169.254/latest/meta-data/', timeout=1)
-        app.config['IN_CLOUD']["status"] = response.status_code == 200
-        app.config['IN_CLOUD']["type"] = "ec2" if response.status_code == 200 else "compute"
-        app.logger.info("Running in the Cloud...")
-
-    except (RequestException, TimeoutError, ConnectionError):
-        app.logger.info("Not running in the Cloud...")
-
-    # Just return the cached value
-    return app.config['IN_CLOUD']["status"]
-
-
-def get_hostname():
-    """
-    :return: the hostname where the app is running: from EC2 is the public host or os hostname otherwise
-    """
-    # just make sure we have if we are on EC2 to show the public host for completeness
-    if is_running_in_the_cloud():
-        # Just get the public hostname from the metadata
-        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-        return requests.get('http://169.254.169.254/latest/meta-data/public-hostname').text
-
-    # By default, just return the nodename
-    # https://stackoverflow.com/questions/4271740/how-can-i-use-python-to-get-the-system-hostname/49610911#49610911
-    return os.uname().nodename
-
-
-def log_current_config():
-    # Just make sure to use the string parser when dumping to string to avoid serialization issues
-    # https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable/36142844#36142844
-    app.logger.info("Loaded with the following config: %s",
-                    json.dumps(app.config, indent=4, sort_keys=True, default=str))
-
-
-def fetch_app_metadata_details():
-    """
-    Loads the metadata about the service just for information
-    """
-    app.logger.info("Bootstrapping app server...")
-
-    # Fetch the first information, which will force to check the cloud
-    app.config['HOSTNAME'] = get_hostname()
-
-    if not is_running_in_the_cloud():
-        app.logger.warning("Can't fetch the cloud metadata because this instance is not in the cloud!")
-        log_current_config()
-        return
-
-    # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-    cloud_metadata = requests.get('http://169.254.169.254/latest/dynamic/instance-identity/document').text
-    app.config['IN_CLOUD']["metadata"] = json.loads(cloud_metadata)
-
-    log_current_config()
-
+app.config["LOCAL_DATABASE_URL"] = LOCAL_DB_TYPE + ':////var/minitwit/minitwit.db'
 
 # Just bootstrap the logs as soon as it loads, as other methods may need cloud metadata
-fetch_app_metadata_details()
-
+ConfigService.bootstrap_cloud_metadata(app)
 
 def get_db_credentials():
     ''' If we are configured to do so, retrieve the db username and password
@@ -202,7 +119,7 @@ def get_db_credentials():
     app.logger.info('%s=%s', CONFIG_DB_SECRET_ARN, secret_arn) #pylint: disable=no-member
 
     # just making sure it's in AWS
-    region = "" if not is_running_in_the_cloud() else app.config['IN_CLOUD']["metadata"]["region"]
+    region = "" if not HostService.is_running_in_the_cloud(app) else app.config['IN_CLOUD']["metadata"]["region"]
 
     try:
         client = boto3.client(
@@ -238,7 +155,7 @@ def make_db_engine():
     db_type = app.config.get(CONFIG_DB_TYPE, LOCAL_DB_TYPE)
 
     if db_type == LOCAL_DB_TYPE:
-        db_url = LOCAL_DATABASE_URL
+        db_url = app.config["LOCAL_DATABASE_URL"]
         app.logger.info('Using local db %s', db_url) #pylint: disable=no-member
         secrets_used = False
 
@@ -348,16 +265,9 @@ def before_request():
 # https://stackoverflow.com/questions/25860304/how-do-i-set-response-headers-in-flask/59676071#59676071
 @app.after_request
 def add_header(response):
-    response.headers['Host'] = app.config['HOSTNAME']
-    if app.config['IN_CLOUD']["status"]:
-        response.headers['X-Host-AZ'] = app.config['IN_CLOUD']["metadata"]["availabilityZone"]
-
-    # When deployed, Ansible will create the following properties:
-    # BUILD_GIT_VERSION = SHA version, BUILD_GIT_REPO, BUILD_GIT_BRANCH
-    app.logger.info(type(app.config))
-    if app.config.get("BUILD_GIT_VERSION") is not None:
-        response.headers['X-App-Version'] = str(app.config.get("BUILD_GIT_VERSION")[0:7])
-
+    # Just decorate the response with default headers
+    HttpResponseDecorator.decorate_with_host_info(app, response)
+    HttpResponseDecorator.decorate_with_app_info(app, response)
     return response
 
 
@@ -490,34 +400,6 @@ def login():
     return render_template('login.html', error=error)
 
 
-@app.route('/admin/env')
-def admin_env():
-    """
-    :return: Show-casing plain text HTTP response for single liveliness, or liveness, health check
-    """
-    # Get the env vars as dict
-    env_key_values = dict(os.environ)
-
-    # Convert the dictionary to a JSON string
-    env_json = json.dumps(env_key_values)
-    app.logger.info("Current envs %s", env_json)
-
-    return env_json, 200, {'content-type':'application/json'}
-
-
-@app.route('/admin/config')
-def admin_config():
-    """
-    :return: Show the current configuration resolved by the app
-    """
-
-    # Convert the dictionary to a JSON string, using the default str serializer
-    config_json = json.dumps(app.config, default=str)
-    app.logger.info("Current config=%s", config_json)
-
-    return config_json, 200, {'content-type':'application/json'}
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """Registers the user."""
@@ -558,79 +440,6 @@ def logout():
     return redirect(url_for('public_timeline'))
 
 
-@app.route('/admin/health/liveness')
-def admin_liveness_healthcheck():
-    """
-    :return: Show-casing plain text HTTP response for single liveliness, or liveness, health check
-    """
-    app.logger.info("App successfully listening on port ")
-    return "Ok", 200, {'content-type': 'text/plain'}
-
-
-@app.route('/admin/health/readiness')
-def admin_readiness_healthcheck():
-    """
-    :return: The readiness probe that verifies and gets the status of the app with a deep health check to RDS.
-    NOTE: This is for demonstrations purposes only!
-    """
-
-    # the server at this point is always 200, but the overall will be 503 depending on RDS
-    readiness_check = {
-        "overall": 503,
-        "server": 200,
-        "database": {
-            "type": "sqlite",
-            "resource": LOCAL_DATABASE_URL,
-            "status": None,
-        }
-    }
-
-    # Just whether the database is initialized locally or through external service (RDS)
-
-    if not is_running_in_the_cloud():
-        # Just checking if the file exists...
-        db_file_path = LOCAL_DATABASE_URL.replace("sqlite:///", "")
-        status = 200 if os.path.isfile(db_file_path) else 503
-        readiness_check["database"]["status"] = status
-        readiness_check["overall"] = status
-
-    else:
-        # Create an RDS client
-        rds = boto3.client('rds')
-
-        # Call the describe_db_instances method to get information about all RDS instances
-        response = rds.describe_db_instances()
-
-        # Loop through the DBInstances and find the instance with the specified endpoint
-        db_instance_status = None
-        for db_instance in response['DBInstances']:
-            if db_instance['Endpoint']['Address'] == app.config.get(CONFIG_DB_ENDPOINT):
-                # Extract the DB instance status from the response
-                db_instance_status = response['DBInstances'][0]['DBInstanceStatus']
-                break
-
-        # Check if the DB instance is available
-        readiness_check["database"]["type"] = "rds"
-        readiness_check["database"]["status"] = 200 if db_instance_status == 'available' else 503
-        readiness_check["database"]["resource"] = app.config.get(CONFIG_DB_ENDPOINT)
-        readiness_check["overall"] = readiness_check["database"]["status"]
-
-    # TODO: verify if the schema is initialized before returning
-
-    # Just log
-    response_json = json.dumps(readiness_check, indent=4)
-    if readiness_check["database"]["status"] == 503:
-        app.logger.warning("The database '%s' is not ready! status must be 'available': readiness_check=%s",
-                        readiness_check["database"]["type"], response_json)
-    else:
-        app.logger.info("The database '%s' is fully ready! readiness_check=%s",
-                        readiness_check["database"]["type"], response_json)
-
-    # https://stackoverflow.com/questions/7824101/return-http-status-code-201-in-flask/54361534#54361534
-    # https://stackoverflow.com/questions/11773348/python-flask-how-to-set-content-type/24852564#24852564
-    return json.dumps(readiness_check), readiness_check["overall"], {'content-type':'application/json'}
-
-
 # add some filters to jinja
 #pylint: disable=no-member
 app.jinja_env.filters['datetimeformat'] = format_datetime
@@ -638,10 +447,13 @@ app.jinja_env.filters['gravatar'] = gravatar_url
 #pylint: enable=no-member
 
 if __name__ == '__main__':
+    # Model: https://gist.github.com/rtzll/8f0f7668c4ca9813e9380b45b932e7c2
+    # https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
+    app.register_blueprint(healthcheck_api)
+    app.register_blueprint(admin_api)
+
+    # So we know the available endpoints to be able to call
+    ConfigService.log_available_endpoints(app)
 
     # flask run --host=0.0.0.0 --with-threads --no-debugger --no-reload
     server = app.run(host='0.0.0.0', threaded=True, debug=False, use_reloader=False)
-
-    # Get the currently configured port number
-    app.config["PORT"] = server.server_port
-    print('Port number: %s', str(app.config["PORT"]))
