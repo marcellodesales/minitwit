@@ -757,16 +757,15 @@ X-App-Version: aa86e8b
   "MAX_COOKIE_SIZE": 4093,
   "CONFIG_DB_ENDPOINT": "DB_ENDPOINT",
   "CONFIG_DB_NAME": "DB_NAME",
-  "CONFIG_DB_PASSWORD": "DB_PASSWORD",
+  "CONFIG_DB_PASSWORD": "DB*****RD",
   "CONFIG_DB_SECRET_ARN": "DB_SECRET_ARN",
-  "CONFIG_DB_SECRET_KEY_PASSWORD": "DB_SECRET_KEY_PASSWORD",
+  "CONFIG_DB_SECRET_KEY_PASSWORD": "DB*****RD",
   "CONFIG_DB_SECRET_KEY_USERNAME": "DB_SECRET_KEY_USERNAME",
   "CONFIG_DB_TYPE": "DB_TYPE",
   "CONFIG_DB_USER": "DB_USER",
   "DB_STASH": "db",
   "DB_TYPE_MYSQL": "mysql",
   "DB_TYPE_SQLITE": "sqlite",
-  "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db",
   "LOCAL_DB_TYPE": "sqlite",
   "PER_PAGE": 30,
   "SCHEMAS": {
@@ -774,14 +773,14 @@ X-App-Version: aa86e8b
     "mysql": "db_mysql.sql"
   },
   "SECRET_FRIENDLY_NAME": "mtdb-credentials",
-  "SECRET_PASSWORD": "password",
+  "SECRET_PASSWORD": "pa*****rd",
   "SECRET_USERNAME": "username",
   "BUILD_GIT_BRANCH": "feature/implement-admin-actuator-endpoints-better-logging",
   "BUILD_GIT_REPO": "https://github.com/marcellodesales/minitwit.git",
-  "BUILD_GIT_VERSION": "aa86e8b15ae73d5df97efcda99308c5afb4fd116",
+  "BUILD_GIT_VERSION": "a3b58ebb788674640e08c39f515fad8869ececc4",
   "DB_ENDPOINT": "mtdb.cwxg4mojlhdg.us-east-1.rds.amazonaws.com",
   "DB_NAME": "mtdb",
-  "DB_PASSWORD": "mtdbpassword",
+  "DB_PASSWORD": "mt*****rd",
   "DB_TYPE": "mysql",
   "DB_USER": "mtdbuser",
   "IN_CLOUD": {
@@ -789,23 +788,24 @@ X-App-Version: aa86e8b
     "metadata": {
       "accountId": "178468422646",
       "architecture": "x86_64",
-      "availabilityZone": "us-east-1a",
+      "availabilityZone": "us-east-1b",
       "billingProducts": null,
       "devpayProductCodes": null,
       "marketplaceProductCodes": null,
       "imageId": "ami-09cd747c78a9add63",
-      "instanceId": "i-0412331f71f1cd3c8",
+      "instanceId": "i-0bcc19c577d3a108d",
       "instanceType": "t3.medium",
       "kernelId": null,
-      "pendingTime": "2023-03-06T18:09:23Z",
-      "privateIp": "10.105.238.6",
+      "pendingTime": "2023-03-08T19:54:48Z",
+      "privateIp": "10.105.238.77",
       "ramdiskId": null,
       "region": "us-east-1",
       "version": "2017-09-30"
     },
     "type": "ec2"
   },
-  "HOSTNAME": "ec2-44-214-35-206.compute-1.amazonaws.com"
+  "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db",
+  "HOSTNAME": "ec2-52-21-148-181.compute-1.amazonaws.com"
 }
 ```
 
@@ -815,7 +815,6 @@ X-App-Version: aa86e8b
 * You can use the endpoint `/healthcheck/liveness` as it is faster to server
 
 ```console
-mdesales@orcas:~$ get-mt-log 52.21.148.181
 + ssh -i key.pem ubuntu@52.21.148.181 sudo journalctl -u minitwit -n 100
 -- Logs begin at Wed 2023-03-08 19:54:59 UTC, end at Thu 2023-03-09 10:58:07 UTC. --
 Mar 09 10:55:38 ip-10-105-238-77 flask[45627]: [2023-03-09 10:55:38,526] INFO in healthcheck_routes: App successfully listening on port

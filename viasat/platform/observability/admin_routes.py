@@ -29,6 +29,12 @@ def admin_config():
 
     # Convert the dictionary to a JSON string, using the default str serializer
     config_json = json.dumps(app.config, default=str)
+
+    # Obfuscate passwords
+    output_obj = json.loads(config_json)
+    output_obj = {k: (v[0:2] + "*****" + v[-2:] if "PASSWORD" in k else v) for k, v in output_obj.items()}
+
+    config_json = json.dumps(output_obj, default=str)
     app.logger.info("Current config=%s", config_json)
 
     return config_json, 200, {'content-type':'application/json'}
