@@ -503,13 +503,97 @@ Connection: close
 }
 ```
 
+## Admin Config Endpoint
+
+* Used to help debug how the app is configured according to its internal settings
+
+> **NOTE**: In production-grade services, this endpoint usually obfuscates secret values
+
+```console
+$ curl -i localhost:4000/admin/config
+HTTP/1.1 200 OK
+Server: Werkzeug/2.2.3 Python/3.8.16
+Date: Thu, 09 Mar 2023 05:55:13 GMT
+content-type: application/json
+Content-Length: 1588
+Host: 9dc7c92fe022
+Connection: close
+
+```
+```json
+{
+  "ENV": "production",
+  "DEBUG": false,
+  "TESTING": false,
+  "PROPAGATE_EXCEPTIONS": null,
+  "SECRET_KEY": "development key",
+  "PERMANENT_SESSION_LIFETIME": "31 days, 0:00:00",
+  "USE_X_SENDFILE": false,
+  "SERVER_NAME": null,
+  "APPLICATION_ROOT": "/",
+  "SESSION_COOKIE_NAME": "session",
+  "SESSION_COOKIE_DOMAIN": null,
+  "SESSION_COOKIE_PATH": null,
+  "SESSION_COOKIE_HTTPONLY": true,
+  "SESSION_COOKIE_SECURE": false,
+  "SESSION_COOKIE_SAMESITE": null,
+  "SESSION_REFRESH_EACH_REQUEST": true,
+  "MAX_CONTENT_LENGTH": null,
+  "SEND_FILE_MAX_AGE_DEFAULT": null,
+  "TRAP_BAD_REQUEST_ERRORS": null,
+  "TRAP_HTTP_EXCEPTIONS": false,
+  "EXPLAIN_TEMPLATE_LOADING": false,
+  "PREFERRED_URL_SCHEME": "http",
+  "JSON_AS_ASCII": null,
+  "JSON_SORT_KEYS": null,
+  "JSONIFY_PRETTYPRINT_REGULAR": null,
+  "JSONIFY_MIMETYPE": null,
+  "TEMPLATES_AUTO_RELOAD": null,
+  "MAX_COOKIE_SIZE": 4093,
+  "CONFIG_DB_ENDPOINT": "DB_ENDPOINT",
+  "CONFIG_DB_NAME": "DB_NAME",
+  "CONFIG_DB_PASSWORD": "DB_PASSWORD",
+  "CONFIG_DB_SECRET_ARN": "DB_SECRET_ARN",
+  "CONFIG_DB_SECRET_KEY_PASSWORD": "DB_SECRET_KEY_PASSWORD",
+  "CONFIG_DB_SECRET_KEY_USERNAME": "DB_SECRET_KEY_USERNAME",
+  "CONFIG_DB_TYPE": "DB_TYPE",
+  "CONFIG_DB_USER": "DB_USER",
+  "DB_STASH": "db",
+  "DB_TYPE_MYSQL": "mysql",
+  "DB_TYPE_SQLITE": "sqlite",
+  "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db",
+  "LOCAL_DB_TYPE": "sqlite",
+  "PER_PAGE": 30,
+  "SCHEMAS": {
+    "sqlite": "db_sqlite.sql",
+    "mysql": "db_mysql.sql"
+  },
+  "SECRET_FRIENDLY_NAME": "mtdb-credentials",
+  "SECRET_PASSWORD": "password",
+  "SECRET_USERNAME": "username",
+  "IN_CLOUD": {
+    "status": false,
+    "metadata": {},
+    "type": "local"
+  },
+  "HOSTNAME": "9dc7c92fe022"
+}
+```
+
+* The server logs will show the current configs as well to record the request.
+
+```console
+minitwit-minitwit-runtime-1  | [2023-03-09 05:55:13,192] INFO in minitwit: Current config={"ENV": "production", "DEBUG": false, "TESTING": false, "PROPAGATE_EXCEPTIONS": null, "SECRET_KEY": "development key", "PERMANENT_SESSION_LIFETIME": "31 days, 0:00:00", "USE_X_SENDFILE": false, "SERVER_NAME": null, "APPLICATION_ROOT": "/", "SESSION_COOKIE_NAME": "session", "SESSION_COOKIE_DOMAIN": null, "SESSION_COOKIE_PATH": null, "SESSION_COOKIE_HTTPONLY": true, "SESSION_COOKIE_SECURE": false, "SESSION_COOKIE_SAMESITE": null, "SESSION_REFRESH_EACH_REQUEST": true, "MAX_CONTENT_LENGTH": null, "SEND_FILE_MAX_AGE_DEFAULT": null, "TRAP_BAD_REQUEST_ERRORS": null, "TRAP_HTTP_EXCEPTIONS": false, "EXPLAIN_TEMPLATE_LOADING": false, "PREFERRED_URL_SCHEME": "http", "JSON_AS_ASCII": null, "JSON_SORT_KEYS": null, "JSONIFY_PRETTYPRINT_REGULAR": null, "JSONIFY_MIMETYPE": null, "TEMPLATES_AUTO_RELOAD": null, "MAX_COOKIE_SIZE": 4093, "CONFIG_DB_ENDPOINT": "DB_ENDPOINT", "CONFIG_DB_NAME": "DB_NAME", "CONFIG_DB_PASSWORD": "DB_PASSWORD", "CONFIG_DB_SECRET_ARN": "DB_SECRET_ARN", "CONFIG_DB_SECRET_KEY_PASSWORD": "DB_SECRET_KEY_PASSWORD", "CONFIG_DB_SECRET_KEY_USERNAME": "DB_SECRET_KEY_USERNAME", "CONFIG_DB_TYPE": "DB_TYPE", "CONFIG_DB_USER": "DB_USER", "DB_STASH": "db", "DB_TYPE_MYSQL": "mysql", "DB_TYPE_SQLITE": "sqlite", "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db", "LOCAL_DB_TYPE": "sqlite", "PER_PAGE": 30, "SCHEMAS": {"sqlite": "db_sqlite.sql", "mysql": "db_mysql.sql"}, "SECRET_FRIENDLY_NAME": "mtdb-credentials", "SECRET_PASSWORD": "password", "SECRET_USERNAME": "username", "IN_CLOUD": {"status": false, "metadata": {}, "type": "local"}, "HOSTNAME": "9dc7c92fe022"}
+minitwit-minitwit-runtime-1  | 192.168.208.1 - - [09/Mar/2023 05:55:13] "GET /admin/config HTTP/1.1" 200 -
+```
+
 ## Healthcheck Endpoints
 
 * When architecting for cloud systems, make sure to have Healthcheck Probe services to make sure the service is working.
 
 > **NOTE**: AWS documents this well at https://aws.amazon.com/builders-library/implementing-health-checks/
 
-## `Liveness`
+### `Liveness`
 
 * Concept borrowed from Kubernetes, it defines if the app is running at the port that's been set.
 * This can be used by the load balancer for less latency, better performance! Content-type of 2 bytes.
@@ -530,7 +614,7 @@ Connection: close
 Ok
 ```
 
-## `Readiness`
+### `Readiness`
 
 * Implements a deep healthcheck in the sense that it will check if the dependent services are responding...
 
