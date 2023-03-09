@@ -22,10 +22,16 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlalchemy as db
 from sqlalchemy.sql import text
 import requests
-from requests.adapters import HTTPAdapter
-from requests.exceptions import RequestException
 import boto3
 import botocore
+
+from viasat.platform.cloud.host_service import HostService
+from viasat.platform.cloud.config_service import ConfigService
+from viasat.platform.cloud.http_response_decorator import HttpResponseDecorator
+
+# https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
+from viasat.platform.observability.healthcheck_routes import healthcheck_api
+from viasat.platform.observability.admin_routes import admin_api
 
 #======================================================================
 # Database settings
@@ -102,97 +108,10 @@ app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
 # Just add an extra config to see if it's in the cloud
 app.config['IN_CLOUD'] = None
-
-ENV_KEY_VALUES = "\n"
-for k, v in os.environ.items():
-    ENV_KEY_VALUES += f'{k}={v}' + "\n"
-app.logger.info("Current environment: %s", ENV_KEY_VALUES)
-
-
-def is_running_in_the_cloud():
-    """
-    :return: Whether we are running in EC2 by checking if there's connectivity to the IP address
-    """
-
-    # Just verifying if the config value has been checked before, if so just return the status
-    if not app.config['IN_CLOUD'] is None:
-        return app.config['IN_CLOUD']["status"]
-
-    # As the server is bootstrapping, then just consider it's not
-    app.config['IN_CLOUD'] = {
-        "status": False,
-        "metadata": {},
-        "type": "local"
-    }
-    try:
-        # We create a requests.Session() object and mount an HTTPAdapter() object with a max_retries value of 0.
-        # This ensures that the requests.get() function will not retry in case of a connection error or a timeout.
-        session = requests.Session()
-        # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request/15431343#15431343
-        retries = HTTPAdapter(max_retries=1)
-        session.mount('http://', retries)
-
-        # Making sure we timeout very quickly for the single request
-        # https://requests.readthedocs.io/en/stable/user/advanced/#timeouts
-        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-        response = session.get('http://169.254.169.254/latest/meta-data/', timeout=1)
-        app.config['IN_CLOUD']["status"] = response.status_code == 200
-        app.config['IN_CLOUD']["type"] = "ec2" if response.status_code == 200 else "compute"
-        app.logger.info("Running in the Cloud...")
-
-    except (RequestException, TimeoutError, ConnectionError):
-        app.logger.info("Not running in the Cloud...")
-
-    # Just return the cached value
-    return app.config['IN_CLOUD']["status"]
-
-
-def get_hostname():
-    """
-    :return: the hostname where the app is running: from EC2 is the public host or os hostname otherwise
-    """
-    # just make sure we have if we are on EC2 to show the public host for completeness
-    if is_running_in_the_cloud():
-        # Just get the public hostname from the metadata
-        # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-        return requests.get('http://169.254.169.254/latest/meta-data/public-hostname').text
-
-    # By default, just return the nodename
-    # https://stackoverflow.com/questions/4271740/how-can-i-use-python-to-get-the-system-hostname/49610911#49610911
-    return os.uname().nodename
-
-
-def log_current_config():
-    # Just make sure to use the string parser when dumping to string to avoid serialization issues
-    # https://stackoverflow.com/questions/11875770/how-to-overcome-datetime-datetime-not-json-serializable/36142844#36142844
-    app.logger.info("Loaded with the following config: %s",
-                    json.dumps(app.config, indent=4, sort_keys=True, default=str))
-
-
-def fetch_app_metadata_details():
-    """
-    Loads the metadata about the service just for information
-    """
-    app.logger.info("Bootstrapping app server...")
-
-    # Fetch the first information, which will force to check the cloud
-    app.config['HOSTNAME'] = get_hostname()
-
-    if not is_running_in_the_cloud():
-        app.logger.warning("Can't fetch the cloud metadata because this instance is not in the cloud!")
-        log_current_config()
-        return
-
-    # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
-    cloud_metadata = requests.get('http://169.254.169.254/latest/dynamic/instance-identity/document').text
-    app.config['IN_CLOUD']["metadata"] = json.loads(cloud_metadata)
-
-    log_current_config()
-
+app.config["LOCAL_DATABASE_URL"] = LOCAL_DB_TYPE + ':////var/minitwit/minitwit.db'
 
 # Just bootstrap the logs as soon as it loads, as other methods may need cloud metadata
-fetch_app_metadata_details()
-
+ConfigService.bootstrap_cloud_metadata(app)
 
 def get_db_credentials():
     ''' If we are configured to do so, retrieve the db username and password
@@ -638,10 +557,13 @@ app.jinja_env.filters['gravatar'] = gravatar_url
 #pylint: enable=no-member
 
 if __name__ == '__main__':
+    # Model: https://gist.github.com/rtzll/8f0f7668c4ca9813e9380b45b932e7c2
+    # https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
+    app.register_blueprint(healthcheck_api)
+    app.register_blueprint(admin_api)
+
+    # So we know the available endpoints to be able to call
+    ConfigService.log_available_endpoints(app)
 
     # flask run --host=0.0.0.0 --with-threads --no-debugger --no-reload
     server = app.run(host='0.0.0.0', threaded=True, debug=False, use_reloader=False)
-
-    # Get the currently configured port number
-    app.config["PORT"] = server.server_port
-    print('Port number: %s', str(app.config["PORT"]))
