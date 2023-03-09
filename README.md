@@ -808,3 +808,28 @@ X-App-Version: aa86e8b
   "HOSTNAME": "ec2-44-214-35-206.compute-1.amazonaws.com"
 }
 ```
+
+## Load Balancer Reaching app
+
+* The healthcheck for liveness should be called by the Load Balancer
+* You can use the endpoint `/healthcheck/liveness` as it is faster to server
+
+```console
+mdesales@orcas:~$ get-mt-log 52.21.148.181
++ ssh -i key.pem ubuntu@52.21.148.181 sudo journalctl -u minitwit -n 100
+-- Logs begin at Wed 2023-03-08 19:54:59 UTC, end at Thu 2023-03-09 10:58:07 UTC. --
+Mar 09 10:55:38 ip-10-105-238-77 flask[45627]: [2023-03-09 10:55:38,526] INFO in healthcheck_routes: App successfully listening on port
+Mar 09 10:55:38 ip-10-105-238-77 flask[45627]: 10.105.238.5 - - [09/Mar/2023 10:55:38] "GET /healthcheck/liveness HTTP/1.1" 200 -
+Mar 09 10:55:42 ip-10-105-238-77 flask[45627]: [2023-03-09 10:55:42,431] INFO in healthcheck_routes: App successfully listening on port
+Mar 09 10:55:42 ip-10-105-238-77 flask[45627]: 10.105.238.68 - - [09/Mar/2023 10:55:42] "GET /healthcheck/liveness HTTP/1.1" 200 -
+Mar 09 10:56:02 ip-10-105-238-77 flask[45627]: [2023-03-09 10:56:02,549] INFO in healthcheck_routes: App successfully listening on port
+Mar 09 10:56:02 ip-10-105-238-77 flask[45627]: 10.105.238.5 - - [09/Mar/2023 10:56:02] "GET /healthcheck/liveness HTTP/1.1" 200 -
+Mar 09 10:56:06 ip-10-105-238-77 flask[45627]: [2023-03-09 10:56:06,452] INFO in healthcheck_routes: App successfully listening on port
+Mar 09 10:56:06 ip-10-105-238-77 flask[45627]: 10.105.238.68 - - [09/Mar/2023 10:56:06] "GET /healthcheck/liveness HTTP/1.1" 200 -
+Mar 09 10:56:08 ip-10-105-238-77 flask[45627]: [2023-03-09 10:56:08,555] INFO in healthcheck_routes: App successfully listening on port
+Mar 09 10:56:08 ip-10-105-238-77 flask[45627]: 10.105.238.5 - - [09/Mar/2023 10:56:08] "GET /healthcheck/liveness HTTP/1.1" 200 -
+Mar 09 10:56:12 ip-10-105-238-77 flask[45627]: [2023-03-09 10:56:12,459] INFO in healthcheck_routes: App successfully listening on port
+Mar 09 10:56:12 ip-10-105-238-77 flask[45627]: 10.105.238.68 - - [09/Mar/2023 10:56:12] "GET /healthcheck/liveness HTTP/1.1" 200 -
+Mar 09 10:56:14 ip-10-105-238-77 flask[45627]: [2023-03-09 10:56:14,562] INFO in healthcheck_routes: App successfully listening on port
+Mar 09 10:56:14 ip-10-105-238-77 flask[45627]: 10.105.238.5 - - [09/Mar/2023 10:56:14] "GET /healthcheck/liveness HTTP/1.1" 200 
+```
