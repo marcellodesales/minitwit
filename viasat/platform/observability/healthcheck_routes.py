@@ -52,7 +52,8 @@ def admin_readiness_healthcheck():
         # As the in cloud config has the metadata, we can use the default region where the apps is running
         os.environ['AWS_DEFAULT_REGION'] = app.config["IN_CLOUD"]["metadata"]["region"]
 
-        # Create an RDS client
+        # Create an RDS client so that we can read the instances
+        # NOTE: Requires AmazonRDSReadOnlyAccess ("rds:Describe*", "rds:ListTagsForResource")
         rds = boto3.client('rds')
 
         # Call the describe_db_instances method to get information about all RDS instances
@@ -61,7 +62,7 @@ def admin_readiness_healthcheck():
         # Loop through the DBInstances and find the instance with the specified endpoint
         db_instance_status = None
         for db_instance in response['DBInstances']:
-            if db_instance['Endpoint']['Address'] == app.config.get(CONFIG_DB_ENDPOINT):
+            if db_instance['Endpoint']['Address'] == app.config.get("DB_ENDPOINT"):
                 # Extract the DB instance status from the response
                 db_instance_status = response['DBInstances'][0]['DBInstanceStatus']
                 break
@@ -69,7 +70,7 @@ def admin_readiness_healthcheck():
         # Check if the DB instance is available
         readiness_check["database"]["type"] = "rds"
         readiness_check["database"]["status"] = 200 if db_instance_status == 'available' else 503
-        readiness_check["database"]["resource"] = app.config.get(CONFIG_DB_ENDPOINT)
+        readiness_check["database"]["resource"] = app.config.get("DB_ENDPOINT")
         readiness_check["overall"] = readiness_check["database"]["status"]
 
     # TODO: verify if the schema is initialized before returning
