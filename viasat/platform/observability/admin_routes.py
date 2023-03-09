@@ -6,6 +6,7 @@ import json
 admin_api = Blueprint('admin_api', __name__, url_prefix='/admin')
 
 from viasat.platform.core.http_auth_basic import auth
+from viasat.platform.cloud.config_service import ConfigService
 
 @admin_api.route('/env')
 @auth.login_required
@@ -41,3 +42,17 @@ def admin_config():
     app.logger.info("Current config=%s", config_json)
 
     return config_json, 200, {'content-type':'application/json'}
+
+
+@admin_api.route('/endpoints')
+@auth.login_required
+def admin_endpoints():
+    """
+    :return: Show the current configuration resolved by the app
+    """
+
+    # So we know the available endpoints to be able to call
+    endpoints = ConfigService.get_current_endpoints(app)
+    endpoints_json = json.dumps(endpoints, default=str)
+
+    return endpoints_json, 200, {'content-type':'application/json'}
