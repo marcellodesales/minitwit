@@ -6,6 +6,14 @@
 
 A simple twitter clone, written in Python, powered by SQLite and Flask.
 
+## Design
+
+* `PlantUML`: https://gist.github.com/marcellodesales/3eee0af42de6c08b9652470ad4230d1e
+
+> **NOTE**: Needs some more work for the design
+
+![Minitwit Diagram](http://www.plantuml.com/plantuml/proxy?src=https://gist.githubusercontent.com/marcellodesales/3eee0af42de6c08b9652470ad4230d1e/raw/6004b21021ecfee590bc3afd7d6835bde95a1a30/minitwit.puml)
+
 # Runtime
 
 > **Requirements**: Python 3, C++, MySQL Client to build clients
