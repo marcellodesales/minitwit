@@ -9,7 +9,7 @@ class ConfigService:
     """Implements host discovery capabilities"""
 
     @staticmethod
-    def log_current_environment(app):
+    def __log_current_environment(app):
         # Just log the current env as bootstrap record
         env_key_values = "\n"
         for k, v in os.environ.items():
@@ -28,8 +28,10 @@ class ConfigService:
     @staticmethod
     def bootstrap_cloud_metadata(app):
         """
-        Loads the metadata about the service just for information
+        Loads the metadata about the service just for information, printing the env info
         """
+        ConfigService.__log_current_environment(app)
+
         app.logger.info("Bootstrapping app server...")
 
         # Fetch the first information, which will force to check the cloud
