@@ -15,7 +15,6 @@ def admin_liveness_healthcheck():
     """
     :return: Show-casing plain text HTTP response for single liveliness, or liveness, health check
     """
-    app.logger.info("App successfully listening on port ")
     return "Ok", 200, {'content-type': 'text/plain'}
 
 
