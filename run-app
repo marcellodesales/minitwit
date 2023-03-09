@@ -6,9 +6,11 @@ export LANG=en_US.utf-8
 
 export DB_DIR=${DB_DIR:-/var/minitwit}
 
+echo "Initializing the app server..."
+
 if [ ! -f ${DB_DIR}/minitwit.db ] || [ -n "${INIT_DB}" ]; then
   echo "Initializing database at ${DB_DIR}/minitwit.db"
   ./init-db
 fi
 
-flask run --host=0.0.0.0 --with-threads --no-debugger --no-reload
+python ${FLASK_APP}
