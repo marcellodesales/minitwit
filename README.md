@@ -272,13 +272,35 @@ exit
 ## Bootstrap config in Non-Cloud
 
 * It does log `Not running in the Cloud...`
+* Shows the current environment variables for debugging
+* Shows the resolved configuration properties for the app
+  * Some of them are resolved based on the environment variables
+* Shows if the kind of database it is connected to.
 
 ```python
-minitwit-minitwit-runtime-1  | [2023-03-09 00:57:49,142] INFO in minitwit: Using local db sqlite:////var/minitwit/minitwit.db
-minitwit-minitwit-runtime-1  | [2023-03-09 00:57:49,331] INFO in minitwit: Bootstrapping app server...
-minitwit-minitwit-runtime-1  | [2023-03-09 00:57:51,485] INFO in minitwit: Not running in the Cloud...
-minitwit-minitwit-runtime-1  | [2023-03-09 00:57:51,489] WARNING in minitwit: Can't fetch the cloud metadata because this instance is not in the cloud!
-minitwit-minitwit-runtime-1  | [2023-03-09 00:57:51,500] INFO in minitwit: Loaded with the following config: {
+minitwit-minitwit-runtime-1  | Initializing the app server...
+minitwit-minitwit-runtime-1  | [2023-03-09 04:54:34,273] INFO in minitwit: Current environment:
+minitwit-minitwit-runtime-1  | _=/usr/local/bin/python
+minitwit-minitwit-runtime-1  | PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+minitwit-minitwit-runtime-1  | PYTHON_GET_PIP_URL=https://github.com/pypa/get-pip/raw/d5cb0afaf23b8520f1bbcfed521017b4a95f5c01/public/get-pip.py
+minitwit-minitwit-runtime-1  | LC_ALL=en_US.utf-8
+minitwit-minitwit-runtime-1  | PYTHON_GET_PIP_SHA256=394be00f13fa1b9aaa47e911bdb59a09c3b2986472130f30aa0bfaf7f3980637
+minitwit-minitwit-runtime-1  | PYTHON_PIP_VERSION=22.0.4
+minitwit-minitwit-runtime-1  | SHLVL=1
+minitwit-minitwit-runtime-1  | FLASK_APP=minitwit.py
+minitwit-minitwit-runtime-1  | GPG_KEY=E3FF2839C048B25C084DEBE9B26995E310250568
+minitwit-minitwit-runtime-1  | LANG=en_US.utf-8
+minitwit-minitwit-runtime-1  | HOME=/root
+minitwit-minitwit-runtime-1  | PYTHON_SETUPTOOLS_VERSION=57.5.0
+minitwit-minitwit-runtime-1  | PWD=/viasat/minitwit
+minitwit-minitwit-runtime-1  | DB_DIR=/var/minitwit
+minitwit-minitwit-runtime-1  | PYTHON_VERSION=3.8.16
+minitwit-minitwit-runtime-1  | HOSTNAME=6c57fa9fba26
+minitwit-minitwit-runtime-1  |
+minitwit-minitwit-runtime-1  | [2023-03-09 04:54:34,278] INFO in minitwit: Bootstrapping app server...
+minitwit-minitwit-runtime-1  | [2023-03-09 04:54:36,316] INFO in minitwit: Not running in the Cloud...
+minitwit-minitwit-runtime-1  | [2023-03-09 04:54:36,319] WARNING in minitwit: Can't fetch the cloud metadata because this instance is not in the cloud!
+minitwit-minitwit-runtime-1  | [2023-03-09 04:54:36,323] INFO in minitwit: Loaded with the following config: {
 minitwit-minitwit-runtime-1  |     "APPLICATION_ROOT": "/",
 minitwit-minitwit-runtime-1  |     "CONFIG_DB_ENDPOINT": "DB_ENDPOINT",
 minitwit-minitwit-runtime-1  |     "CONFIG_DB_NAME": "DB_NAME",
@@ -294,7 +316,7 @@ minitwit-minitwit-runtime-1  |     "DB_TYPE_SQLITE": "sqlite",
 minitwit-minitwit-runtime-1  |     "DEBUG": true,
 minitwit-minitwit-runtime-1  |     "ENV": "production",
 minitwit-minitwit-runtime-1  |     "EXPLAIN_TEMPLATE_LOADING": false,
-minitwit-minitwit-runtime-1  |     "HOSTNAME": "ebbf7e5d00be",
+minitwit-minitwit-runtime-1  |     "HOSTNAME": "6c57fa9fba26",
 minitwit-minitwit-runtime-1  |     "IN_CLOUD": {
 minitwit-minitwit-runtime-1  |         "metadata": {},
 minitwit-minitwit-runtime-1  |         "status": false,
@@ -335,7 +357,8 @@ minitwit-minitwit-runtime-1  |     "TRAP_BAD_REQUEST_ERRORS": null,
 minitwit-minitwit-runtime-1  |     "TRAP_HTTP_EXCEPTIONS": false,
 minitwit-minitwit-runtime-1  |     "USE_X_SENDFILE": false
 minitwit-minitwit-runtime-1  | }
-minitwit-minitwit-runtime-1  |  * Serving Flask app 'minitwit.py'
+minitwit-minitwit-runtime-1  | [2023-03-09 04:54:36,324] INFO in minitwit: Using local db sqlite:////var/minitwit/minitwit.db
+minitwit-minitwit-runtime-1  |  * Serving Flask app 'minitwit'
 minitwit-minitwit-runtime-1  |  * Debug mode: off
 minitwit-minitwit-runtime-1  | WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
 minitwit-minitwit-runtime-1  |  * Running on all addresses (0.0.0.0)
