@@ -497,6 +497,20 @@ def admin_env():
 
     return env_json, 200, {'content-type':'application/json'}
 
+
+@app.route('/admin/config')
+def admin_config():
+    """
+    :return: Show the current configuration resolved by the app
+    """
+
+    # Convert the dictionary to a JSON string, using the default str serializer
+    config_json = json.dumps(app.config, default=str)
+    app.logger.info("Current config=%s", config_json)
+
+    return config_json, 200, {'content-type':'application/json'}
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """Registers the user."""
