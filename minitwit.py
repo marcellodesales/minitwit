@@ -12,6 +12,7 @@
 from collections import namedtuple
 import time
 import json
+import os
 
 from hashlib import md5
 from datetime import datetime
@@ -24,6 +25,14 @@ import requests
 import boto3
 import botocore
 
+from viasat.platform.cloud.host_service import HostService
+from viasat.platform.cloud.config_service import ConfigService
+from viasat.platform.core.http_response_decorator import HttpResponseDecorator
+
+# https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
+from viasat.platform.observability.healthcheck_routes import healthcheck_api
+from viasat.platform.observability.admin_routes import admin_api
+
 #======================================================================
 # Database settings
 
@@ -32,8 +41,6 @@ DB_TYPE_MYSQL = 'mysql'
 
 # By default, use a local sqlite db.
 LOCAL_DB_TYPE = DB_TYPE_SQLITE
-
-LOCAL_DATABASE_URL = LOCAL_DB_TYPE + ':////var/minitwit/minitwit.db'
 
 # Schema files used to initialize the database
 #
@@ -97,6 +104,12 @@ app.config.from_object(__name__)
 #Read config settings from the file specified by this env var, if it is defined.
 app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
+# Just add an extra config to see if it's in the cloud
+app.config['IN_CLOUD'] = None
+app.config["LOCAL_DATABASE_URL"] = LOCAL_DB_TYPE + ':////var/minitwit/minitwit.db'
+
+# Just bootstrap the logs as soon as it loads, as other methods may need cloud metadata
+ConfigService.bootstrap_cloud_metadata(app)
 
 def get_db_credentials():
     ''' If we are configured to do so, retrieve the db username and password
@@ -105,9 +118,8 @@ def get_db_credentials():
     secret_arn = app.config.get(CONFIG_DB_SECRET_ARN)
     app.logger.info('%s=%s', CONFIG_DB_SECRET_ARN, secret_arn) #pylint: disable=no-member
 
-    region = json.loads(
-        requests.get(
-            'http://169.254.169.254/latest/dynamic/instance-identity/document').text)['region']
+    # just making sure it's in AWS
+    region = "" if not HostService.is_running_in_the_cloud(app) else app.config["IN_CLOUD"]["metadata"]["region"]
 
     try:
         client = boto3.client(
@@ -143,7 +155,7 @@ def make_db_engine():
     db_type = app.config.get(CONFIG_DB_TYPE, LOCAL_DB_TYPE)
 
     if db_type == LOCAL_DB_TYPE:
-        db_url = LOCAL_DATABASE_URL
+        db_url = app.config["LOCAL_DATABASE_URL"]
         app.logger.info('Using local db %s', db_url) #pylint: disable=no-member
         secrets_used = False
 
@@ -248,6 +260,15 @@ def before_request():
     if 'user_id' in session:
         g.user = query_db('select * from user where user_id = :userid', #pylint: disable=assigning-non-slot
                           {'userid': session['user_id']}, one=True)
+
+
+# https://stackoverflow.com/questions/25860304/how-do-i-set-response-headers-in-flask/59676071#59676071
+@app.after_request
+def add_header(response):
+    # Just decorate the response with default headers
+    HttpResponseDecorator.decorate_with_host_info(app, response)
+    HttpResponseDecorator.decorate_with_app_info(app, response)
+    return response
 
 
 @app.route('/')
@@ -424,3 +445,14 @@ def logout():
 app.jinja_env.filters['datetimeformat'] = format_datetime
 app.jinja_env.filters['gravatar'] = gravatar_url
 #pylint: enable=no-member
+
+# Model: https://gist.github.com/rtzll/8f0f7668c4ca9813e9380b45b932e7c2
+# https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
+app.register_blueprint(healthcheck_api)
+app.register_blueprint(admin_api)
+
+# So we know the available endpoints to be able to call
+ConfigService.log_available_endpoints(app)
+
+# flask run --host=0.0.0.0 --with-threads --no-debugger --no-reload
+# server = app.run(host='0.0.0.0', threaded=True, debug=False, use_reloader=False)
