@@ -103,6 +103,12 @@ app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 # Just add an extra config to see if it's in the cloud
 app.config['IN_CLOUD'] = None
 
+ENV_KEY_VALUES = "\n"
+for k, v in os.environ.items():
+    ENV_KEY_VALUES += f'{k}={v}' + "\n"
+app.logger.info("Current environment: %s", ENV_KEY_VALUES)
+
+
 def is_running_in_the_cloud():
     """
     :return: Whether we are running in EC2 by checking if there's connectivity to the IP address
