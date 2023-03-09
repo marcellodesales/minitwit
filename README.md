@@ -268,6 +268,7 @@ exit
 
 * Show bootstrap details for debugging
 * Admin Env endpoint
+* Healthcheck Endpoints
 
 ## Bootstrap config in Non-Cloud
 
@@ -499,6 +500,63 @@ Connection: close
   "PYTHON_VERSION": "3.8.16",
   "HOSTNAME": "879f79dddede",
   "WERKZEUG_SERVER_FD": "3"
+}
+```
+
+## Healthcheck Endpoints
+
+* When architecting for cloud systems, make sure to have Healthcheck Probe services to make sure the service is working.
+
+> **NOTE**: AWS documents this well at https://aws.amazon.com/builders-library/implementing-health-checks/
+
+## `Liveness`
+
+* Concept borrowed from Kubernetes, it defines if the app is running at the port that's been set.
+* This can be used by the load balancer for less latency, better performance! Content-type of 2 bytes.
+
+> **NOTE**: Flask apps sets default port number to 5000. If the app responds to the request, then it's 
+> enough evidence that the service is alive.
+
+```console
+$ curl -i localhost:4000/admin/health/liveness 
+HTTP/1.1 200 OK
+Server: Werkzeug/2.2.3 Python/3.8.16
+Date: Thu, 09 Mar 2023 04:19:43 GMT
+content-type: text/plain
+Content-Length: 2
+Host: 879f79dddede
+Connection: close
+
+Ok
+```
+
+## `Readiness`
+
+* Implements a deep healthcheck in the sense that it will check if the dependent services are responding...
+
+> **NOTE**: This is checking if RDS is available! Architectural decisions may be considered
+> * This shouldn't be called by a load-balancer due to its frequency! Mostly by Fleet Admin Dashboards.
+
+```console
+$ curl -i localhost:4000/admin/health/readiness
+HTTP/1.1 200 OK
+Server: Werkzeug/2.2.3 Python/3.8.16
+Date: Thu, 09 Mar 2023 04:19:49 GMT
+content-type: application/json
+Content-Length: 129
+Host: 879f79dddede
+Connection: close
+
+```
+```json
+{
+  "overall": 200,
+  "server": 200,
+  "database": {
+    "type": "sqlite",
+    "resource": "sqlite:////var/minitwit/minitwit.db",
+    "status": 200
+  }
 }
 ```
 
