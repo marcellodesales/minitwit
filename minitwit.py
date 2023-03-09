@@ -351,6 +351,13 @@ def add_header(response):
     response.headers['Host'] = app.config['HOSTNAME']
     if app.config['IN_CLOUD']["status"]:
         response.headers['X-Host-AZ'] = app.config['IN_CLOUD']["metadata"]["availabilityZone"]
+
+    # When deployed, Ansible will create the following properties:
+    # BUILD_GIT_VERSION = SHA version, BUILD_GIT_REPO, BUILD_GIT_BRANCH
+    app.logger.info(type(app.config))
+    if app.config.get("BUILD_GIT_VERSION") is not None:
+        response.headers['X-App-Version'] = str(app.config.get("BUILD_GIT_VERSION")[0:7])
+
     return response
 
 

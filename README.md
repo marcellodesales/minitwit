@@ -648,46 +648,52 @@ Connection: close
 
 * That way you can make sure which server is responding
 
-| HTTP Request | Description                                                                   | Always returned | 
-|--------------|-------------------------------------------------------------------------------|-----------------|
-| Host         | Shows either the public hostname when in the cloud or the host's defined name | Yes             |
-| X-Host-AZ    | Which region served the request, only returned when the app is in the cloud   | No              |
+| HTTP Request  | Description                                                                    | Always returned | 
+|---------------|--------------------------------------------------------------------------------|-----------------|
+| Host          | Shows either the public hostname when in the cloud or the host's defined name  | Yes             |
+| X-Host-AZ     | Which region served the request, only returned when the app is in the cloud    | No              |
+| X-App-Version | The version of the server running based on git, only when the version is known | NO              | 
 
 * Here's an example of the sequence of calls being load-balanced by the Load Balancer.
 
 ```console
-☁️  aws-cli@2.9.15   
+☁️  aws-cli@2.9.15
 ☸️  kubectl@1.24.3 📛 kustomize@1.24.3 🎡 helm@3.10.2    🐳 docker@20.10.21-rd 🐙 docker-compose@v2.14.0
-👮 marcellodesales  
-🏗  1.24.3+k3s1 🔐 rancher-desktop 🍱 default 
-~/dev/git.viasat.com/mdesales/minitwit on  feature/show-hostname-response-header-load-balancer-debug 📅 03-08-2023 ⌚17:17:00
-$ curl -I http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/public
+👮 marcellodesales
+🏗  1.24.3+k3s1 🔐 rancher-desktop 🍱 default
+~/dev/git.viasat.com/mdesales/minitwit on  feature/implement-admin-actuator-endpoints-better-logging! 📅 03-08-2023 ⌚22:22:16
+$ curl -i http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/admin/health/liveness
 HTTP/1.1 200 OK
-Date: Thu, 09 Mar 2023 01:17:04 GMT
-Content-Type: text/html; charset=utf-8
-Content-Length: 771
+Date: Thu, 09 Mar 2023 06:22:22 GMT
+Content-Type: text/plain
+Content-Length: 2
 Connection: keep-alive
-Set-Cookie: AWSALB=Prqz8GZedSFTOFeVRsOsapmAFo/93Bh9dcwhinqaHerEpwnCSpVwhAF6GfdT+uUmYJGYaUL42k7wqFNUOxoER3siaiJxmU7s3BgAu9YYMqqN+Gs2lqS55tWrx6Dl; Expires=Thu, 16 Mar 2023 01:17:04 GMT; Path=/
-Set-Cookie: AWSALBCORS=Prqz8GZedSFTOFeVRsOsapmAFo/93Bh9dcwhinqaHerEpwnCSpVwhAF6GfdT+uUmYJGYaUL42k7wqFNUOxoER3siaiJxmU7s3BgAu9YYMqqN+Gs2lqS55tWrx6Dl; Expires=Thu, 16 Mar 2023 01:17:04 GMT; Path=/; SameSite=None
+Set-Cookie: AWSALB=9LauYKPy6bF6sQcIU6CTJ4UE6fLY8SWdHvPgVLdyXRiHjPMPNVckdKVfm5dq6Da5UFO/j617pAH2rDOB72eWh96dh2l+7hi9jHV5O8LrgcIK7wjiXOf0f0HECTV0; Expires=Thu, 16 Mar 2023 06:22:22 GMT; Path=/
+Set-Cookie: AWSALBCORS=9LauYKPy6bF6sQcIU6CTJ4UE6fLY8SWdHvPgVLdyXRiHjPMPNVckdKVfm5dq6Da5UFO/j617pAH2rDOB72eWh96dh2l+7hi9jHV5O8LrgcIK7wjiXOf0f0HECTV0; Expires=Thu, 16 Mar 2023 06:22:22 GMT; Path=/; SameSite=None
 Server: Werkzeug/2.2.3 Python/3.8.10
 Host: ec2-52-21-148-181.compute-1.amazonaws.com
 X-Host-AZ: us-east-1b
+X-App-Version: 3a41fcd
 
+Ok%
 
-☁️  aws-cli@2.9.15   
+☁️  aws-cli@2.9.15
 ☸️  kubectl@1.24.3 📛 kustomize@1.24.3 🎡 helm@3.10.2    🐳 docker@20.10.21-rd 🐙 docker-compose@v2.14.0
-👮 marcellodesales  
-🏗  1.24.3+k3s1 🔐 rancher-desktop 🍱 default 
-~/dev/git.viasat.com/mdesales/minitwit on  feature/show-hostname-response-header-load-balancer-debug 📅 03-08-2023 ⌚17:17:05
-$ curl -I http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/public
+👮 marcellodesales
+🏗  1.24.3+k3s1 🔐 rancher-desktop 🍱 default
+~/dev/git.viasat.com/mdesales/minitwit on  feature/implement-admin-actuator-endpoints-better-logging! 📅 03-08-2023 ⌚22:22:22
+$ curl -i http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/admin/health/liveness
 HTTP/1.1 200 OK
-Date: Thu, 09 Mar 2023 01:17:07 GMT
-Content-Type: text/html; charset=utf-8
-Content-Length: 771
+Date: Thu, 09 Mar 2023 06:22:24 GMT
+Content-Type: text/plain
+Content-Length: 2
 Connection: keep-alive
-Set-Cookie: AWSALB=YennYV5Lrx+7NUfbnPK7JfhymyrCW4hA/MrXdTgVNbztTtsfIiI5SCAiXDot8uk38Ir7umpkpL5yrEA8FunZGD/IiZ/RzT191y03pYt1jyqfywN0UeYIkKLi9LAw; Expires=Thu, 16 Mar 2023 01:17:07 GMT; Path=/
-Set-Cookie: AWSALBCORS=YennYV5Lrx+7NUfbnPK7JfhymyrCW4hA/MrXdTgVNbztTtsfIiI5SCAiXDot8uk38Ir7umpkpL5yrEA8FunZGD/IiZ/RzT191y03pYt1jyqfywN0UeYIkKLi9LAw; Expires=Thu, 16 Mar 2023 01:17:07 GMT; Path=/; SameSite=None
+Set-Cookie: AWSALB=V+bO/NliUaRN/WNGcOsskLc6dyugcw1GtlHHejF1G3xu0pH0SYZ8tMChnJR/AT9oPt2CTYNV07CvOTfcDjmjPSsvj8BG1QnX/5Anc0R0WodpWO3+kAgaDXW+kJ4v; Expires=Thu, 16 Mar 2023 06:22:24 GMT; Path=/
+Set-Cookie: AWSALBCORS=V+bO/NliUaRN/WNGcOsskLc6dyugcw1GtlHHejF1G3xu0pH0SYZ8tMChnJR/AT9oPt2CTYNV07CvOTfcDjmjPSsvj8BG1QnX/5Anc0R0WodpWO3+kAgaDXW+kJ4v; Expires=Thu, 16 Mar 2023 06:22:24 GMT; Path=/; SameSite=None
 Server: Werkzeug/2.2.3 Python/3.8.10
 Host: ec2-44-214-35-206.compute-1.amazonaws.com
 X-Host-AZ: us-east-1a
+X-App-Version: 3a41fcd
+
+Ok%
 ```
