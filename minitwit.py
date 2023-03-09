@@ -42,8 +42,6 @@ DB_TYPE_MYSQL = 'mysql'
 # By default, use a local sqlite db.
 LOCAL_DB_TYPE = DB_TYPE_SQLITE
 
-LOCAL_DATABASE_URL = LOCAL_DB_TYPE + ':////var/minitwit/minitwit.db'
-
 # Schema files used to initialize the database
 #
 SCHEMAS = {
@@ -121,7 +119,7 @@ def get_db_credentials():
     app.logger.info('%s=%s', CONFIG_DB_SECRET_ARN, secret_arn) #pylint: disable=no-member
 
     # just making sure it's in AWS
-    region = "" if not is_running_in_the_cloud() else app.config['IN_CLOUD']["metadata"]["region"]
+    region = "" if not HostService.is_running_in_the_cloud(app) else app.config['IN_CLOUD']["metadata"]["region"]
 
     try:
         client = boto3.client(
@@ -157,7 +155,7 @@ def make_db_engine():
     db_type = app.config.get(CONFIG_DB_TYPE, LOCAL_DB_TYPE)
 
     if db_type == LOCAL_DB_TYPE:
-        db_url = LOCAL_DATABASE_URL
+        db_url = app.config["LOCAL_DATABASE_URL"]
         app.logger.info('Using local db %s', db_url) #pylint: disable=no-member
         secrets_used = False
 
