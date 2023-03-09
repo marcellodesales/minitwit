@@ -47,6 +47,11 @@ def admin_readiness_healthcheck():
         readiness_check["overall"] = status
 
     else:
+        # Fix https://stackoverflow.com/questions/40377662/boto3-client-noregionerror-you-must-specify-a-region-error-only-sometimes/56131018#56131018
+        # raise NoRegionError() botocore.exceptions.NoRegionError: You must specify a region
+        # As the in cloud config has the metadata, we can use the default region where the apps is running
+        os.environ['AWS_DEFAULT_REGION'] = app.config["IN_CLOUD"]["metadata"]["region"]
+
         # Create an RDS client
         rds = boto3.client('rds')
 
