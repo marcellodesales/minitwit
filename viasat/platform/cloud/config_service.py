@@ -1,5 +1,6 @@
 import json
 import os
+import requests
 
 from viasat.platform.cloud.host_service import HostService
 
