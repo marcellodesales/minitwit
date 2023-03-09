@@ -644,6 +644,11 @@ Connection: close
 }
 ```
 
+# Production Readiness
+
+* Using Healthcheck endpoints for the load balancer
+* Using HTTP Response headers for debugging the deployed app
+
 ## HTTP Response Headers for Debugging
 
 * That way you can make sure which server is responding
@@ -696,4 +701,110 @@ X-Host-AZ: us-east-1a
 X-App-Version: 3a41fcd
 
 Ok%
+```
+
+### Verifying Config Version
+
+* When running in the cloud, it will include information about the current version deployed as well.
+  * See the value `X-App-Version: aa86e8b` in the HTTP Header (see section below)
+* The verification can be done going to Github at https://github.com/marcellodesales/minitwit/commit/aa86e8b
+  * The branch is returned by config property `BUILD_GIT_BRANCH`, verified at https://github.com/marcellodesales/minitwit/commits/feature/implement-admin-actuator-endpoints-better-logging
+
+```console
+$ curl -i http://web-server-alb-193477983.us-east-1.elb.amazonaws.com/admin/config
+HTTP/1.1 200 OK
+Date: Thu, 09 Mar 2023 06:25:15 GMT
+Content-Type: application/json
+Content-Length: 2415
+Connection: keep-alive
+Set-Cookie: AWSALB=iboZ/qrg3HbYcxZcXhEMtYfPBrY8kfkx3DIp63q6wICBi7byUlI7ZGFF5kVplV0ntoqHN/OKSGSLgKJzW7csQnUwZACYgvD69CZ2uOYm6n3eJULrHjmiGT5coOi8; Expires=Thu, 16 Mar 2023 06:25:15 GMT; Path=/
+Set-Cookie: AWSALBCORS=iboZ/qrg3HbYcxZcXhEMtYfPBrY8kfkx3DIp63q6wICBi7byUlI7ZGFF5kVplV0ntoqHN/OKSGSLgKJzW7csQnUwZACYgvD69CZ2uOYm6n3eJULrHjmiGT5coOi8; Expires=Thu, 16 Mar 2023 06:25:15 GMT; Path=/; SameSite=None
+Server: Werkzeug/2.2.3 Python/3.8.10
+Host: ec2-44-214-35-206.compute-1.amazonaws.com
+X-Host-AZ: us-east-1a
+X-App-Version: aa86e8b
+
+```
+```json
+{
+  "ENV": "production",
+  "DEBUG": false,
+  "TESTING": false,
+  "PROPAGATE_EXCEPTIONS": null,
+  "SECRET_KEY": "development key",
+  "PERMANENT_SESSION_LIFETIME": "31 days, 0:00:00",
+  "USE_X_SENDFILE": false,
+  "SERVER_NAME": null,
+  "APPLICATION_ROOT": "/",
+  "SESSION_COOKIE_NAME": "session",
+  "SESSION_COOKIE_DOMAIN": false,
+  "SESSION_COOKIE_PATH": null,
+  "SESSION_COOKIE_HTTPONLY": true,
+  "SESSION_COOKIE_SECURE": false,
+  "SESSION_COOKIE_SAMESITE": null,
+  "SESSION_REFRESH_EACH_REQUEST": true,
+  "MAX_CONTENT_LENGTH": null,
+  "SEND_FILE_MAX_AGE_DEFAULT": null,
+  "TRAP_BAD_REQUEST_ERRORS": null,
+  "TRAP_HTTP_EXCEPTIONS": false,
+  "EXPLAIN_TEMPLATE_LOADING": false,
+  "PREFERRED_URL_SCHEME": "http",
+  "JSON_AS_ASCII": null,
+  "JSON_SORT_KEYS": null,
+  "JSONIFY_PRETTYPRINT_REGULAR": null,
+  "JSONIFY_MIMETYPE": null,
+  "TEMPLATES_AUTO_RELOAD": null,
+  "MAX_COOKIE_SIZE": 4093,
+  "CONFIG_DB_ENDPOINT": "DB_ENDPOINT",
+  "CONFIG_DB_NAME": "DB_NAME",
+  "CONFIG_DB_PASSWORD": "DB_PASSWORD",
+  "CONFIG_DB_SECRET_ARN": "DB_SECRET_ARN",
+  "CONFIG_DB_SECRET_KEY_PASSWORD": "DB_SECRET_KEY_PASSWORD",
+  "CONFIG_DB_SECRET_KEY_USERNAME": "DB_SECRET_KEY_USERNAME",
+  "CONFIG_DB_TYPE": "DB_TYPE",
+  "CONFIG_DB_USER": "DB_USER",
+  "DB_STASH": "db",
+  "DB_TYPE_MYSQL": "mysql",
+  "DB_TYPE_SQLITE": "sqlite",
+  "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db",
+  "LOCAL_DB_TYPE": "sqlite",
+  "PER_PAGE": 30,
+  "SCHEMAS": {
+    "sqlite": "db_sqlite.sql",
+    "mysql": "db_mysql.sql"
+  },
+  "SECRET_FRIENDLY_NAME": "mtdb-credentials",
+  "SECRET_PASSWORD": "password",
+  "SECRET_USERNAME": "username",
+  "BUILD_GIT_BRANCH": "feature/implement-admin-actuator-endpoints-better-logging",
+  "BUILD_GIT_REPO": "https://github.com/marcellodesales/minitwit.git",
+  "BUILD_GIT_VERSION": "aa86e8b15ae73d5df97efcda99308c5afb4fd116",
+  "DB_ENDPOINT": "mtdb.cwxg4mojlhdg.us-east-1.rds.amazonaws.com",
+  "DB_NAME": "mtdb",
+  "DB_PASSWORD": "mtdbpassword",
+  "DB_TYPE": "mysql",
+  "DB_USER": "mtdbuser",
+  "IN_CLOUD": {
+    "status": true,
+    "metadata": {
+      "accountId": "178468422646",
+      "architecture": "x86_64",
+      "availabilityZone": "us-east-1a",
+      "billingProducts": null,
+      "devpayProductCodes": null,
+      "marketplaceProductCodes": null,
+      "imageId": "ami-09cd747c78a9add63",
+      "instanceId": "i-0412331f71f1cd3c8",
+      "instanceType": "t3.medium",
+      "kernelId": null,
+      "pendingTime": "2023-03-06T18:09:23Z",
+      "privateIp": "10.105.238.6",
+      "ramdiskId": null,
+      "region": "us-east-1",
+      "version": "2017-09-30"
+    },
+    "type": "ec2"
+  },
+  "HOSTNAME": "ec2-44-214-35-206.compute-1.amazonaws.com"
+}
 ```
