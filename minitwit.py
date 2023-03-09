@@ -446,14 +446,13 @@ app.jinja_env.filters['datetimeformat'] = format_datetime
 app.jinja_env.filters['gravatar'] = gravatar_url
 #pylint: enable=no-member
 
-if __name__ == '__main__':
-    # Model: https://gist.github.com/rtzll/8f0f7668c4ca9813e9380b45b932e7c2
-    # https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
-    app.register_blueprint(healthcheck_api)
-    app.register_blueprint(admin_api)
+# Model: https://gist.github.com/rtzll/8f0f7668c4ca9813e9380b45b932e7c2
+# https://stackoverflow.com/questions/11994325/how-to-divide-flask-app-into-multiple-py-files
+app.register_blueprint(healthcheck_api)
+app.register_blueprint(admin_api)
 
-    # So we know the available endpoints to be able to call
-    ConfigService.log_available_endpoints(app)
+# So we know the available endpoints to be able to call
+ConfigService.log_available_endpoints(app)
 
-    # flask run --host=0.0.0.0 --with-threads --no-debugger --no-reload
-    server = app.run(host='0.0.0.0', threaded=True, debug=False, use_reloader=False)
+# flask run --host=0.0.0.0 --with-threads --no-debugger --no-reload
+# server = app.run(host='0.0.0.0', threaded=True, debug=False, use_reloader=False)
