@@ -15,6 +15,7 @@ ENV LANG=en_US.utf-8
 
 COPY ./static /viasat/minitwit/static
 COPY ./templates /viasat/minitwit/templates
+COPY ./viasat /viasat/minitwit/viasat
 
 COPY *.py /viasat/minitwit
 COPY *.sql /viasat/minitwit
