@@ -132,10 +132,10 @@ def is_running_in_the_cloud():
         response = session.get('http://169.254.169.254/latest/meta-data/', timeout=1)
         app.config['IN_CLOUD']["status"] = response.status_code == 200
         app.config['IN_CLOUD']["type"] = "ec2" if response.status_code == 200 else "compute"
-        app.logger.info("Running on EC2...")
+        app.logger.info("Running in the Cloud...")
 
     except (RequestException, TimeoutError, ConnectionError):
-        app.logger.info("Not running on EC2...")
+        app.logger.info("Not running in the Cloud...")
 
     # Just return the cached value
     return app.config['IN_CLOUD']["status"]
@@ -153,6 +153,7 @@ def get_hostname():
 
     # By default, just return the nodename
     return os.uname().nodename
+
 
 def log_current_config():
     # Just make sure to use the string parser when dumping to string to avoid serialization issues
@@ -179,6 +180,11 @@ def fetch_app_metadata_details():
     app.config['IN_CLOUD']["metadata"] = json.loads(cloud_metadata)
 
     log_current_config()
+
+
+# Just bootstrap the logs as soon as it loads, as other methods may need cloud metadata
+fetch_app_metadata_details()
+
 
 def get_db_credentials():
     ''' If we are configured to do so, retrieve the db username and password
@@ -506,9 +512,6 @@ def logout():
     flash('You were logged out')
     session.pop('user_id', None)
     return redirect(url_for('public_timeline'))
-
-# Bootstrap the host details
-fetch_app_metadata_details()
 
 # add some filters to jinja
 #pylint: disable=no-member
