@@ -62,43 +62,94 @@ Press CTRL+C to quit
 
 ```console
 $ docker compose up --build minitwit-runtime
-[+] Building 13.5s (17/17) FINISHED
- => [internal] load build definition from Dockerfile                                                                                                     0.0s
- => => transferring dockerfile: 1.39kB                                                                                                                   0.0s
- => [internal] load .dockerignore                                                                                                                        0.0s
- => => transferring context: 2B                                                                                                                          0.0s
- => [internal] load metadata for docker.io/library/python:3.8.16-alpine3.17                                                                              1.1s
- => [auth] library/python:pull token for registry-1.docker.io                                                                                            0.0s
- => [builder 1/9] FROM docker.io/library/python:3.8.16-alpine3.17@sha256:8518dd6657131d938f283ea97385b1db6724e35d45ddab6cd1c583796e35566a                0.0s
- => => resolve docker.io/library/python:3.8.16-alpine3.17@sha256:8518dd6657131d938f283ea97385b1db6724e35d45ddab6cd1c583796e35566a                        0.0s
- => [internal] load build context                                                                                                                        0.0s
- => => transferring context: 767B                                                                                                                        0.0s
- => CACHED [builder 2/9] RUN apk add musl-dev python3-dev mariadb-dev gcc build-base bash                                                                0.0s
- => CACHED [builder 3/9] WORKDIR /viasat/minitwit                                                                                                        0.0s
- => CACHED [builder 4/9] COPY requirements.txt .                                                                                                         0.0s
- => CACHED [builder 5/9] RUN pip install -r requirements.txt                                                                                             0.0s
- => CACHED [builder 6/9] COPY ./static /viasat/minitwit/static                                                                                           0.0s
- => CACHED [builder 7/9] COPY ./templates /viasat/minitwit/templates                                                                                     0.0s
- => CACHED [builder 8/9] COPY *.py /viasat/minitwit                                                                                                      0.0s
- => CACHED [builder 9/9] COPY *.sql /viasat/minitwit                                                                                                     0.0s
- => CACHED [runtime 1/1] COPY run-app .                                                                                                                  0.0s
- => exporting to oci image format                                                                                                                       12.2s
- => => exporting layers                                                                                                                                  0.0s
- => => exporting manifest sha256:961d6ad7ce1a276bca5785193769284de530c6fab4af3993d79a25212b222df6                                                        0.0s
- => => exporting config sha256:ff6eb4ca21b161d3a710f8302313e4506042511aa611356e95f5144897a22acb                                                          0.0s
- => => sending tarball                                                                                                                                  12.2s
- => importing to docker                                                                                                                                  0.2s
-[+] Running 1/0
- ⠿ Container minitwit-minitwit-runtime-1  Created                                                                                                        0.0s
-Attaching to minitwit-minitwit-runtime-1
-minitwit-minitwit-runtime-1  | [2023-03-08 01:37:42,142] INFO in minitwit: Using local db sqlite:////var/minitwit/minitwit.db
+minitwit-minitwit-runtime-1  | Initializing the app server...
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:29,780] INFO in config_service: Current environment:
+minitwit-minitwit-runtime-1  | _=/usr/local/bin/flask
+minitwit-minitwit-runtime-1  | PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+minitwit-minitwit-runtime-1  | PYTHON_GET_PIP_URL=https://github.com/pypa/get-pip/raw/d5cb0afaf23b8520f1bbcfed521017b4a95f5c01/public/get-pip.py
+minitwit-minitwit-runtime-1  | LC_ALL=en_US.utf-8
+minitwit-minitwit-runtime-1  | PYTHON_GET_PIP_SHA256=394be00f13fa1b9aaa47e911bdb59a09c3b2986472130f30aa0bfaf7f3980637
+minitwit-minitwit-runtime-1  | PYTHON_PIP_VERSION=22.0.4
+minitwit-minitwit-runtime-1  | SHLVL=1
+minitwit-minitwit-runtime-1  | FLASK_APP=minitwit.py
+minitwit-minitwit-runtime-1  | GPG_KEY=E3FF2839C048B25C084DEBE9B26995E310250568
+minitwit-minitwit-runtime-1  | LANG=en_US.utf-8
+minitwit-minitwit-runtime-1  | HOME=/root
+minitwit-minitwit-runtime-1  | PYTHON_SETUPTOOLS_VERSION=57.5.0
+minitwit-minitwit-runtime-1  | PWD=/viasat/minitwit
+minitwit-minitwit-runtime-1  | DB_DIR=/var/minitwit
+minitwit-minitwit-runtime-1  | PYTHON_VERSION=3.8.16
+minitwit-minitwit-runtime-1  | HOSTNAME=52900b592410
+minitwit-minitwit-runtime-1  | FLASK_RUN_FROM_CLI=true
+minitwit-minitwit-runtime-1  |
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:29,785] INFO in config_service: Bootstrapping app server...
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:31,830] INFO in host_service: Not running in the Cloud...
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:31,831] WARNING in config_service: Can't fetch the cloud metadata because this instance is not in the cloud!
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:31,834] INFO in config_service: Loaded with the following config: {
+minitwit-minitwit-runtime-1  |     "APPLICATION_ROOT": "/",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_ENDPOINT": "DB_ENDPOINT",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_NAME": "DB_NAME",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_PASSWORD": "DB_PASSWORD",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_SECRET_ARN": "DB_SECRET_ARN",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_SECRET_KEY_PASSWORD": "DB_SECRET_KEY_PASSWORD",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_SECRET_KEY_USERNAME": "DB_SECRET_KEY_USERNAME",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_TYPE": "DB_TYPE",
+minitwit-minitwit-runtime-1  |     "CONFIG_DB_USER": "DB_USER",
+minitwit-minitwit-runtime-1  |     "DB_STASH": "db",
+minitwit-minitwit-runtime-1  |     "DB_TYPE_MYSQL": "mysql",
+minitwit-minitwit-runtime-1  |     "DB_TYPE_SQLITE": "sqlite",
+minitwit-minitwit-runtime-1  |     "DEBUG": true,
+minitwit-minitwit-runtime-1  |     "ENV": "production",
+minitwit-minitwit-runtime-1  |     "EXPLAIN_TEMPLATE_LOADING": false,
+minitwit-minitwit-runtime-1  |     "HOSTNAME": "52900b592410",
+minitwit-minitwit-runtime-1  |     "IN_CLOUD": {
+minitwit-minitwit-runtime-1  |         "metadata": {},
+minitwit-minitwit-runtime-1  |         "status": false,
+minitwit-minitwit-runtime-1  |         "type": "local"
+minitwit-minitwit-runtime-1  |     },
+minitwit-minitwit-runtime-1  |     "JSONIFY_MIMETYPE": null,
+minitwit-minitwit-runtime-1  |     "JSONIFY_PRETTYPRINT_REGULAR": null,
+minitwit-minitwit-runtime-1  |     "JSON_AS_ASCII": null,
+minitwit-minitwit-runtime-1  |     "JSON_SORT_KEYS": null,
+minitwit-minitwit-runtime-1  |     "LOCAL_DATABASE_URL": "sqlite:////var/minitwit/minitwit.db",
+minitwit-minitwit-runtime-1  |     "LOCAL_DB_TYPE": "sqlite",
+minitwit-minitwit-runtime-1  |     "MAX_CONTENT_LENGTH": null,
+minitwit-minitwit-runtime-1  |     "MAX_COOKIE_SIZE": 4093,
+minitwit-minitwit-runtime-1  |     "PERMANENT_SESSION_LIFETIME": "31 days, 0:00:00",
+minitwit-minitwit-runtime-1  |     "PER_PAGE": 30,
+minitwit-minitwit-runtime-1  |     "PREFERRED_URL_SCHEME": "http",
+minitwit-minitwit-runtime-1  |     "PROPAGATE_EXCEPTIONS": null,
+minitwit-minitwit-runtime-1  |     "SCHEMAS": {
+minitwit-minitwit-runtime-1  |         "mysql": "db_mysql.sql",
+minitwit-minitwit-runtime-1  |         "sqlite": "db_sqlite.sql"
+minitwit-minitwit-runtime-1  |     },
+minitwit-minitwit-runtime-1  |     "SECRET_FRIENDLY_NAME": "mtdb-credentials",
+minitwit-minitwit-runtime-1  |     "SECRET_KEY": "development key",
+minitwit-minitwit-runtime-1  |     "SECRET_PASSWORD": "password",
+minitwit-minitwit-runtime-1  |     "SECRET_USERNAME": "username",
+minitwit-minitwit-runtime-1  |     "SEND_FILE_MAX_AGE_DEFAULT": null,
+minitwit-minitwit-runtime-1  |     "SERVER_NAME": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_DOMAIN": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_HTTPONLY": true,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_NAME": "session",
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_PATH": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_SAMESITE": null,
+minitwit-minitwit-runtime-1  |     "SESSION_COOKIE_SECURE": false,
+minitwit-minitwit-runtime-1  |     "SESSION_REFRESH_EACH_REQUEST": true,
+minitwit-minitwit-runtime-1  |     "TEMPLATES_AUTO_RELOAD": null,
+minitwit-minitwit-runtime-1  |     "TESTING": false,
+minitwit-minitwit-runtime-1  |     "TRAP_BAD_REQUEST_ERRORS": null,
+minitwit-minitwit-runtime-1  |     "TRAP_HTTP_EXCEPTIONS": false,
+minitwit-minitwit-runtime-1  |     "USE_X_SENDFILE": false
+minitwit-minitwit-runtime-1  | }
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:31,835] INFO in minitwit: Using local db sqlite:////var/minitwit/minitwit.db
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:31,969] INFO in config_service: Endpoints: ['/static/<path:filename>', '/', '/public', '/<username>', '/<username>/follow', '/<username>/unfollow', '/add_message', '/login', '/register', '/logout', '/healthcheck/liveness', '/healthcheck/readiness', '/admin/env', '/admin/config', '/admin/endpoints']
 minitwit-minitwit-runtime-1  |  * Serving Flask app 'minitwit.py'
 minitwit-minitwit-runtime-1  |  * Debug mode: off
 minitwit-minitwit-runtime-1  | WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
 minitwit-minitwit-runtime-1  |  * Running on all addresses (0.0.0.0)
 minitwit-minitwit-runtime-1  |  * Running on http://127.0.0.1:5000
-minitwit-minitwit-runtime-1  |  * Running on http://192.168.192.2:5000
-minitwit-minitwit-runtime-1  | Press CTRL+C to quit
+minitwit-minitwit-runtime-1  |  * Running on http://192.168.208.2:5000
 ```
 
 3. Go to the browser at http://127.0.0.1:5000.
@@ -275,7 +326,7 @@ exit
 # Observability Capabilities
 
 * Show bootstrap details for debugging
-* Admin Env endpoint
+* Admin endpoints
 * Healthcheck Endpoints
 
 ## Bootstrap config in Non-Cloud
@@ -603,6 +654,43 @@ minitwit-minitwit-runtime-1  | [2023-03-09 05:55:13,192] INFO in minitwit: Curre
 minitwit-minitwit-runtime-1  | 192.168.208.1 - - [09/Mar/2023 05:55:13] "GET /admin/config HTTP/1.1" 200 -
 ```
 
+## Admin Endpoints Endpoint
+
+* Used to help debug how the app is configured according to its internal settings
+
+> **NOTE**: In production-grade services, this endpoint usually obfuscates secret values
+
+```console
+$ curl -i -H "Authorization: Basic dmlhc2F0OmNhbXBlcg==" http://localhost:4000/admin/endpoints
+HTTP/1.1 200 OK
+Server: Werkzeug/2.2.3 Python/3.8.16
+Date: Thu, 09 Mar 2023 14:29:06 GMT
+content-type: application/json
+Content-Length: 256
+Host: 52900b592410
+Connection: close
+
+```
+```json
+[
+  "/static/<path:filename>",
+  "/",
+  "/public",
+  "/<username>",
+  "/<username>/follow",
+  "/<username>/unfollow",
+  "/add_message",
+  "/login",
+  "/register",
+  "/logout",
+  "/healthcheck/liveness",
+  "/healthcheck/readiness",
+  "/admin/env",
+  "/admin/config",
+  "/admin/endpoints"
+]
+```
+
 ## Healthcheck Endpoints
 
 * When architecting for cloud systems, make sure to have Healthcheck Probe services to make sure the service is working.
@@ -664,6 +752,20 @@ Connection: close
 
 * Using Healthcheck endpoints for the load balancer
 * Using HTTP Response headers for debugging the deployed app
+
+## List of Endpoints
+
+* When the app bootstraps, it will log its available endpoints
+* It's helpful to verify if an existing or new endpoint is available
+
+```console
+minitwit-minitwit-runtime-1  | [2023-03-09 14:28:31,969] INFO in config_service: 
+  Endpoints: ['/static/<path:filename>', '/', '/public', '/<username>', 
+              '/<username>/follow', '/<username>/unfollow', '/add_message', 
+              '/login', '/register', '/logout', '/healthcheck/liveness', 
+              '/healthcheck/readiness', '/admin/env', '/admin/config', 
+              '/admin/endpoints']
+```
 
 ## HTTP Response Headers for Debugging
 
