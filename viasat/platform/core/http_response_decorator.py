@@ -9,6 +9,7 @@ class HttpResponseDecorator:
         if app.config['IN_CLOUD']["status"]:
             response.headers['X-Host-AZ'] = app.config['IN_CLOUD']["metadata"]["availabilityZone"]
 
+
     @staticmethod
     def decorate_with_app_info(app, response):
         # When deployed, Ansible will create the following properties:
